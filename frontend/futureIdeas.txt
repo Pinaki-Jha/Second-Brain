@@ -1,0 +1,28 @@
+A working Backend on the SectionSubSections, Projects, To Do List, etc
+CRUD Operations on all SectionSubSections, Projects, ToDo List (Every single list item), etc
+Notes Widget
+Calender Widget
+Fix SectionSubsection by checking for itemList length and mapping/returning appropriate response
+To Do List Preview on Home Page
+Journal Pages (Blog Jaisa hee)
+75 Hard Day Checklist?
+Database + Backend add of course
+CRUD operations functionality for all sections
+Figure out how to work with local images using MongoDB and Mongoose
+Resource List
+
+-------------------------------------------------------------------------------------------------------------------------------
+Completed
+-------------------------------------------------------------------------------------------------------------------------------
+Quotes API
+Motivational Quote of the Day
+To Do List
+Routing
+Book List
+Book Notes Pages
+Project Individual Pages
+NFP/LR Counter
+Book Notes Content as a list of objects with headings and paragraph content for better flexibility in Note Taking
+Project Pages Sub Pages functionality, similar to how Book List is implemented, perhaps
+User Sign in and Authentication
+Different User Sign in and Authentication
