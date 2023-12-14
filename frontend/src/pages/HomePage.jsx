@@ -35,7 +35,7 @@ function HomePage(props){
         <div>
 
             <div className="pt-3 mx-auto main-heading">
-                <h1 className="text-center text-5xl my-3">Welcome, {username}</h1>
+                <h1 className="text-center text-3xl md:text-5xl my-3">Welcome, {username}</h1>
                 <hr className="mx-auto w-11/12 md:w-5/12 border-black"/>
             </div>
 
@@ -46,13 +46,13 @@ function HomePage(props){
                     <div className="flex flex-row">
                         <div className="w-1/2 border-r py-3 border-black px-5 hover:bg-indigo-50">
                             <Link to="/project list">
-                                <h1 className="text-5xl bold-heading">Projects</h1>
+                                <h1 className="text-3xl md:text-5xl bold-heading">Projects</h1>
                                 <p className="my-3 mr-16 pl-1 pb-10">Organize all the resources for your projects in one place.</p>
                             </Link>
                         </div>
                         <div className="md:w-1/2 px-5 py-3 hover:bg-indigo-50">
                             <Link to="/book page">
-                                <h1 className="text-5xl bold-heading">Books</h1>
+                                <h1 className="text-3xl md:text-5xl bold-heading">Books</h1>
                                 <p className="my-3 pl-1 mr-16">Organize your learnings from the books you have read.</p>
                             </Link>
                         </div>
@@ -62,7 +62,7 @@ function HomePage(props){
 
                     <div className="px-5 pb-1 pt-3 hover:bg-indigo-50">
                         <Link to="/todo list">
-                            <h1 className="text-5xl bold-heading">To Do</h1>
+                            <h1 className="text-3xl md:text-5xl bold-heading">To Do</h1>
                             <p className="my-3 mr-16 pl-1 pb-9 mb-4">Review pending tasks and start finishing them off, one at a time.</p>
                         </Link>
                     </div>
