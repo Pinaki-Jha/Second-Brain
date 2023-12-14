@@ -28,7 +28,7 @@ function Quote(){
 
     return(
         <div className="px-10 py-3 my-3 mx-2 flex h-96 text-center items-center">
-            <h1 className="main-heading text-3xl text-center align-middle">{'"' + quote + '"'}</h1>
+            <h1 className="main-heading text-xl md:text-3xl text-center align-middle">{'"' + quote + '"'}</h1>
         </div>
     )
 
