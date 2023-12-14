@@ -232,7 +232,7 @@ function Projects(props){
                 </div>
                 
                 <div className={categoryVis}>
-                <div className="inline-block md:hidden align-text-top mx-auto my-3 w-1/11 px-1 border-slate-800 border-r">
+                <div className="hidden md:hidden align-text-top mx-auto my-3 w-1/11 px-1 border-slate-800 border-r">
                 
                 {projectList.map(projectData=>{
                     return (projectData.id!="0")?(
