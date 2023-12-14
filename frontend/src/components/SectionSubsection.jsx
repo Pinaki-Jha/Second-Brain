@@ -156,6 +156,7 @@ function SectionSubsection(props){
                     )
                 })}
                 <input className="w-full main-heading text-center py-2 border-b border-black focus:outline-none" ref={newSectionRef} onKeyDown={function(event){if(event.code==="Enter"){handleAddSection();}}} placeholder="new category"/>
+                <button className="hover:bg-indigo-50" onClick={()=>{handleAddSection();}}>Add</button>
             </div>
             
             <div className={"px-1 border-black md:inline-block border-r " + sectionVis}>

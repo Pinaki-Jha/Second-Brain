@@ -51,9 +51,10 @@ function SectionContent(props){
 
 
     return(
-        <div key={content._id || content.id} className="">
+        <div key={content._id || content.id} className="main-heading">
             <div className= "flex flex-row justify-content">
                     <input ref={headingRef} className="text-2xl main-heading pt-3 px-4 focus:outline-none w-full" type="text" placeholder="new heading" value={heading} onChange={(e)=>{setHeading(e.target.value)}} onKeyDown={(e)=>{if(e.code==="Enter"){updateContent();}}}/>
+                    <button className="hover:bg-indigo-50" onClick={()=>{updateContent()}}>Save</button>
 
             </div>
                     <textarea rows={String((text.length/115)+ row) } ref={textRef} className="pb-3 px-6 main-heading focus:outline-none w-full resize-none" type="text" placeholder="new text" value={text} onChange={(e)=>{setText(e.target.value); if((text.length)%120===0){updateContent();}}} onKeyDown={(e)=>{if(e.code==="Enter"){setRow(row+1); updateContent();}else if(e.code=="Backspace"){resetContent();if((text.length)%120===0){updateContent();}}}}></textarea>
