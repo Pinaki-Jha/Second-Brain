@@ -13,7 +13,7 @@ const app = express();
 app.use(cors())
 app.use(express.json())
 
-mongoose.connect(process.env.MONGODB_URL)
+mongoose.connect(process.env.MONGODB_URI)
 
 
 
@@ -25,8 +25,7 @@ app.post('/api/register', async (req,res)=>{
             password : req.body.password,
 
             bookList : [
-                {id:"0", name:"Reading List", content:[{id:"0",heading:"Pinaki Jha", text: "Kitna awesome hai yeh", row:1},{id:"2",heading: "Pinaki Jha!", text:"Kya mast hai yeh aadmi",row:1}]},
-                {id:"1", name:"Lalalala", content:[{id:"1",heading:"Lalalala", text: "Kitna awesome hai yeh",row:1},{id:"3",heading: "Pinaki Jha!", text:"Kya mast hai yeh aadmi",row:1}]}
+                {id:"0", name:"Reading List", content:[],},
             ],
 
             projectList : [{

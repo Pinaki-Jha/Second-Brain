@@ -9,7 +9,8 @@ function Projects(props){
     const [selectedProject, setSelectedProject] = useState(projectList[0]._id || projectList[0].id)
     const [notifvis, setNotifvis] = useState("")
     const [categoryVis,setCategoryVis] = useState("hidden")
-    const categoryRef = useRef()
+    const categoryRef1 = useRef()
+    const categoryRef2 = useRef()
     const projectRef = useRef()
 
     //console.log(props.projectList[0])
@@ -101,9 +102,12 @@ function Projects(props){
         setProjectList(newProjectList)
         updateProjectList(newProjectList)
     }
-    const handleAddCategory = ()=>{
-        //console.log("yay")
-        const heading = categoryRef.current.value
+
+
+    const handleAddCategory1 = ()=>{
+        //console.log("adding")
+        const heading = categoryRef1.current.value
+
         if (heading===""){
             return;
         }
@@ -122,8 +126,34 @@ function Projects(props){
                 }
         }
         //console.log(heading)
-        categoryRef.current.value = null
+        categoryRef1.current.value = null
     }
+
+    const handleAddCategory2 = ()=>{
+        //console.log("adding")
+        const heading = categoryRef2.current.value
+
+        if (heading===""){
+            return;
+        }
+        else{
+
+            if(projectList.length>0){
+                const newProjectList = [...projectList, { id: nanoid(), heading:heading, content:[] }];
+                setProjectList(newProjectList)
+                updateProjectList(newProjectList)
+            }
+            else{
+                const newProjectList = [{id: nanoid(), heading:heading, content:[]}];
+                setProjectList(newProjectList)
+                updateProjectList(newProjectList)
+                    
+                }
+        }
+        //console.log(heading)
+        categoryRef2.current.value = null
+    }
+
 
     let isLight = true;
 
@@ -150,7 +180,7 @@ function Projects(props){
                     )
                 }   
                 )}
-                <input className="inline-block w-full  text-center mx-2.5 border-b py-2 border-black focus:outline-none" ref={categoryRef} onKeyDown={function(event){if(event.code==="Enter"){handleAddCategory();}}} placeholder="new category"/>
+                <input className="inline-block w-full  text-center mx-2.5 border-b py-2 border-black focus:outline-none" ref={categoryRef1} onKeyDown={function(event){if(event.code==="Enter"){handleAddCategory1();}}} placeholder="new category"/>
             </div>
 
             <div className="md:inline-block align-text-top mx-auto hidden my-3 px-1 border-slate-800 border-r">
@@ -172,7 +202,7 @@ function Projects(props){
                 <hr className="w-11/12 md:w-5/12 border-black"/>
 
                     <div className={categoryVis}>
-                    <div className="inline-block flex flex-row md:hidden justify-stretch align-text-top mx-auto w-11/12 my-3 py-3 border-y pl-2 border-slate-800 border-x">
+                    <div className=" flex flex-row md:hidden justify-stretch align-text-top mx-auto w-11/12 my-3 py-3 border-y pl-2 border-slate-800 border-x">
                 <div className="w-11/12">
                 {projectList.map(projectData=>{
                     return(
@@ -183,7 +213,7 @@ function Projects(props){
                     )
                 }   
                 )}
-                <input className="inline-block w-11/12 text-center mx-2.5 border-b py-2 border-black focus:outline-none" ref={categoryRef} onKeyDown={function(event){if(event.code==="Enter"){handleAddCategory();}}} placeholder="new category"/>
+                <input className="inline-block w-11/12 text-center mx-2.5 border-b py-2 border-black focus:outline-none" ref={categoryRef2} onKeyDown={function(event){if(event.code==="Enter"){handleAddCategory2();}}} placeholder="new category"/>
                 </div>
                 <div>
                 {projectList.map(projectData=>{
@@ -191,7 +221,7 @@ function Projects(props){
                         <>
                         <button key={projectData._id || projectData.id} className="block py-2 rounded-sm hover:bg-red-100 main-heading w-full" onClick={() =>removeCat(projectData._id || projectData.id)}>x</button>
                         </>
-                    ):(<div className="block py-4 rounded-sm hover:bg-indigo-50 main-heading w-full"><br/></div>)
+                    ):(<div className="block py-2 rounded-sm hover:bg-indigo-50 main-heading w-full"><br/></div>)
                 }   
                 )}
                 </div>
