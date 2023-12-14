@@ -139,6 +139,8 @@ function ToDo(){
             
 
             <input className="border-b w-full pt-4 mb-4 border-black focus:outline-none"  ref={newTodoRef} placeholder="Add a new task..." onKeyDown={function(event){if (event.code ==="Enter"){handleAddToDo();}}} type ="text"/>
+            <button className="hover:bg-indigo-50" onClick={()=>handleAddToDo}>Add Task</button>
+            <br/>
             <button className = "hover:bg-red-100" onClick={()=>{handleRemoveToDo()}}>Clear Completed Tasks</button>
             </div>
 
