@@ -2,7 +2,7 @@ import { useRef, useState } from "react"
 import Subsection from "./Subsection"
 import { decodeToken } from "react-jwt"
 import { nanoid } from "nanoid"
-import  deleteIcon  from "../assets/deleteIcon.png"
+
 
 function SectionSubsection(props){
 
