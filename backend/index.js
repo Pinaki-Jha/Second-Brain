@@ -3,6 +3,7 @@ const cors = require("cors")
 const mongoose = require("mongoose")
 const jwt = require("jsonwebtoken")
 const User = require("./models/user.model")
+const bcrypt = require("bcrypt")
 require("dotenv").config();
 
 
@@ -12,6 +13,7 @@ const app = express();
 //middlewares
 app.use(cors())
 app.use(express.json())
+app.use(express.static('static'))
 
 mongoose.connect(process.env.MONGODB_URI)
 
@@ -19,10 +21,11 @@ mongoose.connect(process.env.MONGODB_URI)
 
 app.post('/api/register', async (req,res)=>{
     try{        
+        const newPassword = await bcrypt.hash(req.body.password,10)
         await User.create({
             username : req.body.username,
             email : req.body.email,
-            password : req.body.password,
+            password : newPassword,
 
             bookList : [
                 {id:"0", name:"Reading List", content:[],},
@@ -50,20 +53,19 @@ app.post('/api/register', async (req,res)=>{
 
 app.post('/api/login', async (req, res) =>{
     try{
-    const user = await User.findOne({email: req.body.email , password: req.body.password})
-    if(user){
+    const user = await User.findOne({email: req.body.email})
+    if(!user){return res.json({status:"not ok",user:false,message:"No user with that email registered"})}
+    const isPassValid = await bcrypt.compare(req.body.password, user.password)
+    if(isPassValid){
         const token = jwt.sign({
             username : user.username,
             email : user.email,
-            bookList: user.bookList,
-            projectList : user.projectList,
-            toDoList : user.toDoList,
         }, "secret123", {expiresIn:'1d'})
 
         return res.json({status:"ok", user:token, message:"login successful"})
     }
     else{
-        return res.json({status:"not ok",user:false, message: "Please check your username and password."})
+        return res.json({status:"not ok",user:false, message: "Please check your password."})
     }
 }catch(err){
     console.log(err);
@@ -280,7 +282,9 @@ app.post('/api/getbooklist', async(req,res)=>{
 })
 
 
-
+app.use('*',  (req, res) => {
+    res.sendFile((__dirname+ '/static/index.html'));
+});
     
 
 
