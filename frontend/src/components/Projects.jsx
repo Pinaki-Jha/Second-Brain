@@ -160,8 +160,8 @@ function Projects(props){
 
     return (
         <div className="">
-            <h1 className="bold-heading text-5xl my-3 pt-3 text-center md:text-left md:mx-20">The Projects</h1>
-            <hr className="md:mx-20 w-11/12 md:w-5/12 border-black"/>
+            <h1 className="bold-heading text-3xl md:text-5xl my-3 pt-3 text-center md:text-left md:mx-20">The Projects</h1>
+            <hr className="md:mx-20 mx-auto w-11/12 md:w-5/12 border-black"/>
 
             <div className={"flex flex-row my-2 border border-gray-600 " + notifvis}>
                 <button className="text-red-500 px-5" onClick={()=>{setNotifvis("hidden")}}>X</button>
@@ -181,6 +181,7 @@ function Projects(props){
                 }   
                 )}
                 <input className="inline-block w-full  text-center mx-2.5 border-b py-2 border-black focus:outline-none" ref={categoryRef1} onKeyDown={function(event){if(event.code==="Enter"){handleAddCategory1();}}} placeholder="new category"/>
+                <button className="hover:bg-indigo-50" onClick={()=>{handleAddCategory1()}}>Add</button>
             </div>
 
             <div className="md:inline-block align-text-top mx-auto hidden my-3 px-1 border-slate-800 border-r">
@@ -197,8 +198,8 @@ function Projects(props){
 
 
             <div className="inline-block align-text-top ml-5 w-11/12 md:w-8/12 my-3 mr-5 pl-2 border-slate-800 border-r">
-                <h1 className="bold-heading inline-block text-4xl">{projectName.heading}</h1>
-                <button className={(categoryVis==="hidden")?("bold-heading text-3xl mx-2 text-slate-300 md:hidden rotate-180"):("bold-heading text-3xl mx-2 text-slate-300 md:hidden")} onClick={()=>{toggleCategoryVis()}}>^</button>
+                <h1 className="bold-heading inline-block text-2xl md:text-4xl">{projectName.heading}</h1>
+                <button className={(categoryVis==="hidden")?("bold-heading text-xl md:text-3xl mx-2 text-slate-300 md:hidden rotate-180"):("bold-heading text-xl md:text-3xl mx-2 text-slate-300 md:hidden")} onClick={()=>{toggleCategoryVis()}}>^</button>
                 <hr className="w-11/12 md:w-5/12 border-black"/>
 
                     <div className={categoryVis}>
@@ -214,6 +215,7 @@ function Projects(props){
                 }   
                 )}
                 <input className="inline-block w-11/12 text-center mx-2.5 border-b py-2 border-black focus:outline-none" ref={categoryRef2} onKeyDown={function(event){if(event.code==="Enter"){handleAddCategory2();}}} placeholder="new category"/>
+                <button className="hover:bg-indigo-50" onClick={()=>{handleAddCategory2()}}>Add</button>
                 </div>
                 <div>
                 {projectList.map(projectData=>{
@@ -230,7 +232,7 @@ function Projects(props){
                 </div>
                 
                 <div className={categoryVis}>
-                <div className="inline-block md:hidden hidden align-text-top mx-auto my-3 w-1/11 px-1 border-slate-800 border-r">
+                <div className="inline-block md:hidden align-text-top mx-auto my-3 w-1/11 px-1 border-slate-800 border-r">
                 
                 {projectList.map(projectData=>{
                     return (projectData.id!="0")?(
@@ -257,7 +259,8 @@ function Projects(props){
 
                 })}
                 <input className="px-2 py-1 w-full border-black focus:outline-none"  ref={projectRef} onKeyDown={function(event){if(event.code==="Enter"){handleAddProject();}}} placeholder="new project"/>
-                <hr className="mx-3 mb-10 border-black"/>
+                <hr className="mx-3 border-black"/>
+                <button className="hover:bg-indigo-50 mb-10" onClick={()=>{handleAddProject()}}>Add</button>
             </div>
             <div className="">
                 {projectContent.map(content=>{
