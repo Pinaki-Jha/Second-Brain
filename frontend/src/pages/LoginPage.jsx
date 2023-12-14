@@ -81,7 +81,7 @@ function LoginPage(){
 
             <form onSubmit={loginUser} className="">
             <div className="flex flex-row">
-                <div className="w-1/4 py-12 px-5 md:px-32 text-left">
+                <div className="md:w-1/4 py-12 px-5 md:px-32 text-left">
                 <h1 className="px-auto py-1">Email</h1>
                 <h1 className="px-auto py-1">Password</h1>
                 </div>
