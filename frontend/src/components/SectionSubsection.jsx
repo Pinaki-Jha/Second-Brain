@@ -56,7 +56,7 @@ function SectionSubsection(props){
         user.projectID = props.projectID
         
 
-        const response = await fetch(('http://localhost:3000/api/updatesection'+ props.section),{
+        const response = await fetch(('/api/updatesection'+ props.section),{
             method:"POST",
             headers:{
                 "Content-Type":"application/json",

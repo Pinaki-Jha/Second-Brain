@@ -48,7 +48,7 @@ function Projects(props){
         
         user.projectList = newprojectlist;
 
-        const response = await fetch('http://localhost:3000/api/updateprojectlist',{
+        const response = await fetch('/api/updateprojectlist',{
             method:"POST",
             headers:{
                 "Content-Type": "application/json"

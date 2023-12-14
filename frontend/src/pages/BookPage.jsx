@@ -13,7 +13,7 @@ function BookPage(){
         if(token){
         const user = decodeToken(token)
 
-        const response = await fetch('http://localhost:3000/api/getbooklist', {
+        const response = await fetch('/api/getbooklist', {
             method:"POST",
             headers:{
                 "Content-Type":"application/json"

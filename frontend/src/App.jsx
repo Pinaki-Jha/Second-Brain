@@ -21,7 +21,7 @@ function App() {
     const token = localStorage.getItem('token');
     if(token){
     const user = decodeToken(token);
-    const response = await fetch('http://localhost:3000/api/getprojectlist', {
+    const response = await fetch('/api/getprojectlist', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

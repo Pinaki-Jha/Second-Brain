@@ -14,7 +14,7 @@ function ToDo(){
     async function getTodos(){
         const token = localStorage.getItem('token')
         const user = decodeToken(token)
-        const response = await fetch('http://localhost:3000/api/gettodo',{
+        const response = await fetch('/api/gettodo',{
             method:"POST",
             headers:{
                 "Content-Type":"application/json",
@@ -45,7 +45,7 @@ function ToDo(){
         const user = decodeToken(token)
         user.toDoList = newtodolist
 
-        const response = await fetch('http://localhost:3000/api/updatetodo',{
+        const response = await fetch('/api/updatetodo',{
             method:"POST",
             headers:{
                 "Content-Type":"application/json",

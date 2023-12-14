@@ -13,7 +13,7 @@ const app = express();
 //middlewares
 app.use(cors())
 app.use(express.json())
-app.use(express.static('static'))
+app.use(express.static('dist'))
 
 mongoose.connect(process.env.MONGODB_URI)
 
@@ -283,12 +283,12 @@ app.post('/api/getbooklist', async(req,res)=>{
 
 
 app.use('*',  (req, res) => {
-    res.sendFile((__dirname+ '/static/index.html'));
+    res.sendFile((__dirname+ '/dist/index.html'));
 });
     
 
 
 
-app.listen(process.env.PORT || 3000, ()=>{
+app.listen(process.env.PORT, ()=>{
     console.log("server started on port 3000")
 })

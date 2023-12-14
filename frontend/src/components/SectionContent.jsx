@@ -29,7 +29,7 @@ function SectionContent(props){
         //console.log(request)
 
 
-        const response = await fetch(('http://localhost:3000/api/updatesection'+ props.section +"updatecontent"),{
+        const response = await fetch(('/api/updatesection'+ props.section +"updatecontent"),{
             method:"POST",
             headers:{
                 "Content-Type":"application/json",
