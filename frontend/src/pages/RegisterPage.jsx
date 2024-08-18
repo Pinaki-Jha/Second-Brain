@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom"
 import favicon from "../assets/favicon.png";
 import { useJwt, isExpired, decodeToken } from 'react-jwt'
+import conns from "../components/BackendConn"
+
 
 function RegisterPage(){
 
@@ -56,7 +58,7 @@ function RegisterPage(){
         else{
             setMessage("")
 
-        const response = await fetch('/api/register',{
+        const response = await fetch(conns.RegisterConn,{
             method:"POST",
             headers: {
                 'Content-Type':'application/json',

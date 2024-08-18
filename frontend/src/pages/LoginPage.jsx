@@ -3,6 +3,7 @@ import { useJwt, isExpired, decodeToken } from 'react-jwt'
 import { Link } from "react-router-dom"
 import { useNavigate } from "react-router-dom";
 import favicon from "../assets/favicon.png";
+import conns from "../components/BackendConn"
 
 function LoginPage(){
 
@@ -49,7 +50,7 @@ function LoginPage(){
         
             setErrorMessage("")
 
-        const response = await fetch('/api/login',{
+        const response = await fetch(conns.LoginConn,{
             method:"POST",
             headers: {
                 'Content-Type':'application/json',

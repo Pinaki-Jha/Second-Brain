@@ -36,10 +36,10 @@ app.post('/api/register', async (req,res)=>{
                 heading:"default projects", content:[],},],
 
             toDoList : []
+         })
+         
 
-          
 
-    })
         console.log(req.body)
         return res.json({status:"ok", message:"Registration Successful. Please Log In.", color:"text-blue-500"})
     }catch(err){
@@ -49,7 +49,10 @@ app.post('/api/register', async (req,res)=>{
     
 })
 
+//app.get('/api/getUsers',async (req,res)=>{
 
+
+//})
 
 app.post('/api/login', async (req, res) =>{
     try{
@@ -58,6 +61,7 @@ app.post('/api/login', async (req, res) =>{
     const isPassValid = await bcrypt.compare(req.body.password, user.password)
     if(isPassValid){
         const token = jwt.sign({
+            id: user._id,
             username : user.username,
             email : user.email,
         }, "secret123", {expiresIn:'1d'})
@@ -69,7 +73,7 @@ app.post('/api/login', async (req, res) =>{
     }
 }catch(err){
     console.log(err);
-    return res.json({status:"error", user:false, message:"blehh"})
+    return res.json({status:"error", user:false, message:"Unexpected Error. Please Try again."})
 }
 })
 

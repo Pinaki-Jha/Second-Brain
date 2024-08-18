@@ -10,8 +10,8 @@ import LoginPage from './pages/LoginPage'
 import { useState, useEffect } from 'react'
 import { decodeToken } from 'react-jwt'
 import ErrorPage from './pages/ErrorPage'
-
-
+import UserPage from './pages/UserPage'
+import conns from './components/BackendConn'
 function App() {
 
   
@@ -21,7 +21,7 @@ function App() {
     const token = localStorage.getItem('token');
     if(token){
     const user = decodeToken(token);
-    const response = await fetch('/api/getprojectlist', {
+    const response = await fetch(conns.ProjectListConn, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -55,6 +55,8 @@ function App() {
 
           <Route path="/register" element={<RegisterPage/>}/>
           <Route path="/login" element = {<LoginPage/>}/>
+
+          <Route path="/user/:username" element={<UserPage/>} />
 
           <Route path="/" element={<HomePage/>}/>
           <Route path="/project list" element = {<ProjectList/>}/>

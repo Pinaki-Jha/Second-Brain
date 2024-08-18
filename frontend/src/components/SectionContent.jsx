@@ -12,10 +12,13 @@ function SectionContent(props){
     const headingRef = useRef()
     const textRef = useRef()
 
+    const divisionConstant = (screen.availWidth)*0.0625
+
     //update values for every 20 or so change in words? And whenever the user presses enter. Simple and easy.
 
     async function updateContent(){
         console.log("updating")
+        console.log(screen.availWidth)
 
         const token = localStorage.getItem('token')
         const user = decodeToken(token)
@@ -57,7 +60,7 @@ function SectionContent(props){
                     <button className="hover:bg-indigo-50" onClick={()=>{updateContent()}}>Save</button>
 
             </div>
-                    <textarea rows={String((text.length/115)+ row) } ref={textRef} className="pb-3 px-6 main-heading focus:outline-none w-full resize-none" type="text" placeholder="new text" value={text} onChange={(e)=>{setText(e.target.value); if((text.length)%120===0){updateContent();}}} onKeyDown={(e)=>{if(e.code==="Enter"){setRow(row+1); updateContent();}else if(e.code=="Backspace"){resetContent();if((text.length)%120===0){updateContent();}}}}></textarea>
+                    <textarea rows={String((text.length/divisionConstant)+ row) } ref={textRef} className="pb-3 px-6 main-heading focus:outline-none w-full resize-none" type="text" placeholder="new text" value={text} onChange={(e)=>{setText(e.target.value); if((text.length)%120===0){updateContent();}}} onKeyDown={(e)=>{if(e.code==="Enter"){setRow(row+1); updateContent();}else if(e.code=="Backspace"){resetContent();if((text.length)%120===0){updateContent();}}}}></textarea>
         </div>
                     
     )

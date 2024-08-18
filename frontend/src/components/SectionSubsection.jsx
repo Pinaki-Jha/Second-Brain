@@ -2,6 +2,7 @@ import { useRef, useState } from "react"
 import Subsection from "./Subsection"
 import { decodeToken } from "react-jwt"
 import { nanoid } from "nanoid"
+import { Link } from "react-router-dom"
 
 
 function SectionSubsection(props){
@@ -138,7 +139,8 @@ function SectionSubsection(props){
     
     return(
         <div className="">
-            <h1 className="bold-heading pt-10 text-5xl pb-2 px-2">{props.heading}</h1>
+            <Link to="/" className="pt-10 pb-1 heading-main hidden text-gray-500 md:block">Back</Link>
+            <h1 className="bold-heading  text-5xl pb-2 px-2 pt-10 md:pt-0">{props.heading}</h1>
             <hr className="border-black"/>
             <div className={"flex flex-row my-2 border border-gray-600 " + notifvis}>
                 <button className="text-red-500 px-5" onClick={()=>{setNotifvis("hidden")}}>X</button>

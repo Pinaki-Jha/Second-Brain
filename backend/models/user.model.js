@@ -1,4 +1,5 @@
 const mongoose = require("mongoose")
+const Schema = mongoose.Schema;
 
 const Content = new mongoose.Schema({
     id: String,
@@ -35,10 +36,11 @@ const ToDo = new mongoose.Schema({
     completed: Boolean,
 })
 
-const User = new mongoose.Schema({
+const userSchema = new Schema({
     username : {type:String, required:true},
     email:{type:String, required:true,unique:true},
     password:{type:String, required:true},
+    content: [],
     bookList: [SectionSubsection],
     projectList: [Projects],
     toDoList: [ToDo],
@@ -48,7 +50,7 @@ const User = new mongoose.Schema({
 },{collection : 'user-data'})
 
 
-const model = mongoose.model("UserData",User)
+const User = mongoose.model("UserData",userSchema)
 
-module.exports = model
+module.exports = User
 

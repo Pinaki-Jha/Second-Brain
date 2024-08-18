@@ -4,7 +4,7 @@ import Quote from "../components/Quote"
 import { useEffect, useState} from 'react'
 import { useJwt, isExpired, decodeToken } from 'react-jwt'
 
-function HomePage(props){
+function UserPage(props){
 
     const history = useNavigate()
     const [username, setUsername] = useState()
@@ -34,12 +34,18 @@ function HomePage(props){
     return(
         <div>
 
-            
-            <div className="pt-3 mx-auto main-heading">
-                <h1 className="text-center text-3xl md:text-5xl my-3">Welcome, {username}</h1>
+<div className="pt-3 mx-auto main-heading">
+                <h1 className="text-center text-3xl md:text-5xl my-3">{username}'s Second Brain</h1>
                 <hr className="mx-auto w-11/12 md:w-5/12 border-black"/>
             </div>
 
+
+            <div className="flex flex-row py-10">
+                <div className="w-1/4 min-h-screen border-r-2 border-black"></div>
+            </div>
+
+
+            
             <div className="flex flex-col md:flex-row my-16 main-heading">
 
                 <div className="md:w-1/2 border-x mx-2 md:mx-0 md:ml-5 border-black">
@@ -84,7 +90,7 @@ function HomePage(props){
     )
 }
 
-export default HomePage
+export default UserPage
 
 
 
