@@ -1,11 +1,3 @@
-/*
-User
-    id
-    username
-    email
-    password
-    directories: [root + other directories they have access to]  (?)
-*/
 
 /*directory
     id
@@ -27,9 +19,25 @@ const directorySchema = new Schema({
   access:[{ type: Schema.Types.ObjectId, ref: "User"}],
   last_updated: {type:Date},
   deleted: {type:Date},
-  directories: [{ type: Schema.Types.ObjectId, ref: "Directory" }],
-  files: [{ type: Schema.Types.ObjectId, ref: "File" }],
-});
+  directories: [{type:String}],
+  files: [{type:String}],
+  //directories: [{ id: {type: Schema.Types.ObjectId, ref: "Directory"},name:{type:String} }],
+  //files: [{ id:{type: Schema.Types.ObjectId, ref: "File"},name:{type:String}}],
+},
+/*{
+  unique: true,
+  partialFilterExpression: {
+    $or: [
+      { parent: { $exists: false } }, // Root directories
+      { parent: { $exists: true } }   // Subdirectories
+    ]
+  }
+},
+*/
+{collection : 'directory-data'});
+
+//directorySchema.index({ name: 1, parent: 1, owner: 1 }, { unique: true });
+
 
 const Directory = mongoose.model("Directory", directorySchema);
 
