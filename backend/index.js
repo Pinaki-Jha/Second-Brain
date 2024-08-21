@@ -3,6 +3,8 @@ const cors = require("cors")
 const mongoose = require("mongoose")
 const jwt = require("jsonwebtoken")
 const User = require("./models/user.model")
+const Directory = require("./models/directory.model")
+const File = require("./models/file.model")
 const bcrypt = require("bcryptjs")
 require("dotenv").config();
 
@@ -26,33 +28,30 @@ app.post('/api/register', async (req,res)=>{
             username : req.body.username,
             email : req.body.email,
             password : newPassword,
-
-            bookList : [
-                {id:"0", name:"Reading List", content:[],},
-            ],
-
-            projectList : [{
-                id:"0",
-                heading:"default projects", content:[],},],
-
-            toDoList : []
-         })
+        })
          
+
+        const user = await User.findOne({email: req.body.email})
+        
+        const rootDirectory = new Directory({
+            name: 'root',
+            owner: user._id,
+            directories: [],
+            files: [],
+          });
+      
+          await rootDirectory.save();
 
 
         console.log(req.body)
         return res.json({status:"ok", message:"Registration Successful. Please Log In.", color:"text-blue-500"})
     }catch(err){
         console.log(err)
-        return res.json({status:"error", message: "A user with that Email already exists", color:"text-red-500"})
+        return res.json({status:"error", message: "A user with that Email or username already exists", color:"text-red-500"})
     }
     
 })
 
-//app.get('/api/getUsers',async (req,res)=>{
-
-
-//})
 
 app.post('/api/login', async (req, res) =>{
     try{
@@ -78,212 +77,130 @@ app.post('/api/login', async (req, res) =>{
 })
 
 
+//to create a file or directory
+app.post('/api/:username/:path',async(req,res)=>{
 
-app.post('/api/updatetodo', async (req, res) =>{
-    const user = await User.findOne({email: req.body.email})
-    if(user){
-        user.toDoList = req.body.toDoList;
-        await user.save();
-        return res.json({status:"ok", message:"tasks updated successfully"})
-    }
-    else{
+    const { username,path} = req.params;
+    const fullPath = path + (req.params[0] || '');
+  
+    try {
+      // Find the user
+      console.log(username)
+      const user = await User.findOne({username: username });
+      if (!user){return res.json({status:404,directory:{}, message:"User not Found"})}
 
-        return res.json({status:"error", message: "Nahi hua bhai"})
-    }
-})
+  
+      // Split the path and find the directory
+      const pathParts = fullPath.split('-'); 
+      console.log(pathParts)
+      let currentDirectory = await Directory.findOne({ name: 'root', owner: user._id });
+    
+      //don't wanna get the directory if it has been deleted. Add checks for that later.
+      for (let i=1;i<pathParts.length;i++) {
+        part = pathParts[i]
+        currentDirectory = await Directory.findOne({ name: part, parent: currentDirectory._id, owner: user._id });
+        if (!currentDirectory) return res.json({ status:404, directory:{},message: 'Directory not found' });
+      }
 
-app.post('/api/updateprojectlist', async(req,res)=>{
-  const user = await User.findOne({email: req.body.email})
-  if(user){
-    user.projectList = req.body.projectList;
-    await user.save();
-    return res.json({status:"ok", message:"Projects Updated Successfully"})
-  }else{
-    return res.json({status:"error", message: "Nahi hua bhai"})
-
-  }
-})
-
-app.post('/api/updatesectionbooklist', async(req,res)=>{
-    const user = await User.findOne({email:req.body.email});
-    if(user){
-        user.bookList = req.body.itemList;
-        await user.save();
-        return res.json({status:"ok"})
-    }
-    else{
-        return res.json({status:"not ok"})
-    }
-})
-
-
-app.post('/api/updatesectionbooklistupdatecontent', async(req,res)=>{
-    try{
-    const user = await User.findOne({email:req.body.email});
-    if(user){
-        const booklist = user.bookList;
-        //console.log(booklist)
-        const newBooklist = booklist.map(book=>{
-
-            if (book.id === req.body.parentid){
-                const newbookContent = book.content.map(stuff=>{
-                    if(stuff.id === req.body.id){
-                        const newStuff = {id:stuff.id, heading:req.body.heading, text:req.body.text, row:req.body.row}
-                        return newStuff;
-                    }
-                    else{
-                        return stuff;
-                    }
-
-                })
-
-                const newBook = {id:book.id, name:book.name, content:newbookContent}
-                return newBook;
-            }
-            else{
-                return book;
-            }
+      console.log(currentDirectory.name);
+      console.log(req.body);
+      if(req.body.type=="file"){
+        const newFile = new File({
+          name:req.body.name,
+          content:" ",
+          parent:currentDirectory._id,
+          owner: user._id
         })
 
-        user.bookList = newBooklist;
-        //console.log(user.bookList)
-        await user.save();
-        return res.json({status:"ok"})
+        await newFile.save();
 
-        //console.log(newBooklist)
-    }
-    else{
-        return res.json({status:"not ok"})
-    }
-    }catch(error){
-        console.log(error)
-        return res.json({status:"error"})
-    }
-})
+        currentDirectory.files.push(req.body.name);
 
-app.post('/api/updatesectionprojectlist', async(req,res)=>{
-    const user = await User.findOne({email:req.body.email});
-    if (user){
-        const projectlist = user.projectList;
-        const newProjectlist = projectlist.map(projects=>{
-            const newProjectContent = projects.content.map(project=>{
-                if(project.id ===req.body.projectID){
-                    //console.log(req.body.itemList)
-                    const newProject = {id:project.id,name:project.name, itemList:req.body.itemList}
-                    //console.log(newProject);
-                    return newProject;
-                }
-                else{
-                    return project;
-                }
-            })
-            const newProjects = {id:projects.id, heading:projects.heading, content:newProjectContent}
-            return newProjects;
-        })
-        user.projectList = newProjectlist;
-        await user.save();
-        return res.json({status:"ok"})
-    }
-    else{
-        return res.json({status:"not ok"})
-    }
-})
+        await currentDirectory.save();
 
-app.post('/api/updatesectionprojectlistupdatecontent',async (req,res)=>{
-    const user = await User.findOne({email:req.body.email});
+        res.json({status:200,message:"file created"})
+      }
+      else if(req.body.type=="directory"){
 
-    if(user){
-        const projectlist = user.projectList;
-        const newProjectlist = projectlist.map(projects=>{
-            const newProjectContent = projects.content.map(project=>{
-                if(project.id ===req.body.projectID){
-                    //console.log(req.body.itemList)
-                    const newItemlist =  project.itemList.map(psection=>{
-
-                        if (psection.id === req.body.parentid){
-                            const newPSectionContent = psection.content.map(stuff=>{
-                                if(stuff.id === req.body.id){
-                                    const newStuff = {id:stuff.id, heading:req.body.heading, text:req.body.text, row:req.body.row}
-                                    return newStuff;
-                                }
-                                else{
-                                    return stuff;
-                                }
-            
-                            })
-            
-                            const newPSection = {id:psection.id, name:psection.name, content:newPSectionContent}
-                            return newPSection;
-                        }
-                        else{
-                            return psection;
-                        }
-                    })
-
-
-                    const newProject = {id:project.id,name:project.name, itemList:newItemlist}
-                    //console.log(newProject);
-                    return newProject;
-                }
-                else{
-                    return project;
-                }
-            })
-            const newProjects = {id:projects.id, heading:projects.heading, content:newProjectContent}
-            return newProjects;
+        const newDir = new Directory({
+          name:req.body.name,
+          parent:currentDirectory._id,
+          owner: user._id
         })
 
+        await newDir.save();
 
-        user.projectList = newProjectlist;
-        await user.save();
-        
+        currentDirectory.directories.push(req.body.name);
 
+        await currentDirectory.save();
+        res.json({status:200,message:"directory created"})
+
+      }
+
+    
+    }catch (err) {
+        console.log(err);
+      res.json({status:500, directory:{},message:err.message});
     }
+  
 
 })
 
+app.get('/api/:username/:path*', async (req, res) => {
+    const { username, path } = req.params;
+    const fullPath = path + (req.params[0] || '');
+  
+    try {
+      // Find the user
+      console.log(username)
+      const user = await User.findOne({username: username });
+      if (!user){return res.json({status:404,directory:{}, message:"User not Found"})}
 
+  
+      // Split the path and find the directory
+      const pathParts = fullPath.split('-'); 
+      let lastPart = pathParts[pathParts.length - 1];
+      console.log(lastPart)
 
+      let currentDirectory = await Directory.findOne({ name: 'root', owner: user._id });
+    
+      //don't wanna get the directory if it has been deleted. Add checks for that later.
+      for (let i=1;i<pathParts.length - 1;i++) {
+        part = pathParts[i]
+        currentDirectory = await Directory.findOne({ name: part, parent: currentDirectory._id, owner: user._id });
+        if (!currentDirectory) return res.json({ status:404, directory:{},message: 'Directory not found' });
+      }
 
+      if(pathParts.length>1){
+        if(lastPart.startsWith('file:')){
+          console.log("is a file")
+          lastPart = lastPart.replace('file:', '');
+          let currentFile = await File.findOne({name:lastPart, parent:currentDirectory._id, owner:user._id});
+          if(!currentFile){return res.json({status:404,directory:{},file:{},message:'File not found'})}
+          return res.json({status:200,directory:currentDirectory, file:currentFile,type:"file",message:"File sent"});
 
+        }
+        else{
+          currentDirectory = await Directory.findOne({ name: lastPart, parent: currentDirectory._id, owner: user._id });
+          if (!currentDirectory) return res.json({ status:404, directory:{},message: 'Directory not found' });
+          return res.json({status:200,directory:currentDirectory,type:"directory",message:"Directory sent"});
 
-
-
-
-app.post('/api/gettodo', async(req,res)=>{
-    const user = await User.findOne({email:req.body.email});
-
-    if(user){
-        //console.log(user.toDoList)
-        return res.json({status:"ok",todo:user.toDoList, message:"yelo tumhaari todo list"})
-        
+      }
     }
-    else{
-        return res.json({status:"not ok"})
-    }
-})
 
-app.post('/api/getprojectlist', async(req,res)=>{
-  const user = await User.findOne({email:req.body.email});
-  //console.log("yay")
+    return res.json({status:200,directory:currentDirectory,type:"directory",message:"Directory sent"});
 
-  if (user){
-    return res.json({status:"ok", projectlist: user.projectList, message:"yelo tumhaari project list"})
-  }
-  else{
-    return res.json({status:"not ok"})
-  }
-})
 
-app.post('/api/getbooklist', async(req,res)=>{
-    const user = await User.findOne({email:req.body.email});
-    if(user){
-        return res.json({status:"ok", booklist: user.bookList, message:"yelo tumhaari book list"})
+
+    } catch (err) {
+        console.log(err);
+      res.json({status:500, directory:{},message:err.message});
     }
-    else{
-        return res.json({status:"not ok"})
-    }
-})
+  });
+
+
+
+
 
 
 app.use('*',  (req, res) => {

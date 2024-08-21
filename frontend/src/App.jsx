@@ -10,7 +10,7 @@ import LoginPage from './pages/LoginPage'
 import { useState, useEffect } from 'react'
 import { decodeToken } from 'react-jwt'
 import ErrorPage from './pages/ErrorPage'
-import UserPage from './pages/UserPage'
+import RootPage from './pages/RootPage'
 import conns from './components/BackendConn'
 function App() {
 
@@ -55,8 +55,8 @@ function App() {
 
           <Route path="/register" element={<RegisterPage/>}/>
           <Route path="/login" element = {<LoginPage/>}/>
-
-          <Route path="/user/:username" element={<UserPage/>} />
+          
+          <Route path="/:user/:path" element={<RootPage/>} />
 
           <Route path="/" element={<HomePage/>}/>
           <Route path="/project list" element = {<ProjectList/>}/>

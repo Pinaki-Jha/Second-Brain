@@ -20,7 +20,7 @@ const fileSchema = new Schema({
   access:[{ type: Schema.Types.ObjectId, ref: "User"}],
   last_updated: {type:Date},
   deleted: {type:Date},
-});
+},{collection : 'file-data'});
 
 const File = mongoose.model("File", fileSchema);
 
