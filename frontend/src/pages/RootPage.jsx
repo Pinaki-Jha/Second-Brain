@@ -6,6 +6,10 @@ import TextEditor from "../components/TextEditor";
 import { useJwt, isExpired, decodeToken } from 'react-jwt'
 import conns from '../components/BackendConn';
 import axios from "axios";
+import {initialValue} from '../components/SlateInitialValue';
+
+
+
 
 function RootPage(props){
 
@@ -16,14 +20,22 @@ function RootPage(props){
 
     const [data, setData] = useState(null);
     const [currentDir, setCurrentDir] = useState(null);
-    const [currentDirData, setCurrentDirData] = useState(null);
     const [currentFile,setCurrentFile] = useState(null);
+    //const [currentDirData, setCurrentDirData] = useState(null);
+
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [itemToDelete, setItemToDelete] = useState({ name: '', type: '' });
+
 
     const [newDirName,setNewDirName] = useState("")
     const [dirFormVis, setDirFormVis] = useState("hidden")
     const [newFileName, setNewFileName] = useState("")
     const [fileFormVis, setFileFormVis] = useState("hidden")
-    
+
+    const [optVisIndex, setOptVisIndex] = useState(null);
+
+
+
     useEffect(()=>{
         const token = localStorage.getItem("token");
         //console.log("yay")
@@ -50,7 +62,7 @@ function RootPage(props){
             method:"GET"
           });
           const tempdata = await response.json();
-          setCurrentDirData(tempdata);
+          //setCurrentDirData(tempdata);
           setData(tempdata);
           if(tempdata.type=="directory"){
           setCurrentDir(tempdata.directory);
@@ -66,8 +78,7 @@ function RootPage(props){
       };
 
     //sending login details in the header -- see example from the cornell notes app project!!!
-    useEffect(() => {
-        
+    useEffect(() => {        
         fetchPageContent();
     }, [user, path]);    
 
@@ -78,8 +89,8 @@ function RootPage(props){
     const handleCreateFile=async (event)=> {
         event.preventDefault();
         
-        for( let i=0;i< currentDirData.directory.files.length;i++){
-            let file = currentDirData.directory.files[i]
+        for( let i=0;i< currentDir.files.length;i++){
+            let file = currentDir.files[i]
             if(file === newFileName){
                 console.log("can't create two files having the same name")
                 return;
@@ -94,8 +105,8 @@ function RootPage(props){
             body : JSON.stringify({
                 name: newFileName,
                 type:"file",
-                content: "",
-                parent: currentDirData.directory.name,
+                content: initialValue,
+                parent: currentDir.name,
                 owner: user,
         
             }),
@@ -118,8 +129,8 @@ function RootPage(props){
 
         event.preventDefault();
         
-        for( let i=0;i< currentDirData.directory.directories.length;i++){
-            let subDir = currentDirData.directory.directories[i]
+        for( let i=0;i< currentDir.directories.length;i++){
+            let subDir = currentDir.directories[i]
             if(subDir === newDirName){
                 console.log("can't create two directories having the same name")
                 return;
@@ -134,7 +145,7 @@ function RootPage(props){
             body : JSON.stringify({
                 name: newDirName,
                 type:"directory",
-                parent: currentDirData.directory.name,
+                parent: currentDir.name,
                 owner: user,
         
             }),
@@ -151,6 +162,43 @@ function RootPage(props){
 
         fetchPageContent();
         
+    }
+
+
+    const handleOptionsMenuVis = (index)=>{
+        setOptVisIndex(optVisIndex===index ? null: index);
+    }
+
+    const openDeleteModal = (name, type) => {
+        setItemToDelete({ name, type });
+        setIsModalVisible(true);
+    }
+    
+
+    const handleDeletion = async (name, type) =>{
+        
+
+        const response = await fetch(conns.ConnPrefix + `/api/${user}/${path || ''}`,{
+            method:"DELETE",
+            headers: {
+                'Content-Type':'application/json',
+            },
+            body : JSON.stringify({
+                name: name,
+                type:type,
+                parent: currentDir.name,
+                owner: user,
+        
+            }),
+
+        })
+
+
+        const data = await response.json();
+        console.log(data);
+
+        fetchPageContent();
+
     }
 
 
@@ -172,20 +220,32 @@ function RootPage(props){
       };
 
     const navigateToFile = (fileName) =>{
-        const newPath = path ? `${path}-file:${fileName}` : `file:${fileName}`;
+        if(!path){
+            const newPath = fileName;
+            navigate(`/${username}/${newPath}`);   
+        }
+
+        let tempPath = path.split('-')
+        if(tempPath[tempPath.length-1].startsWith('file:')){
+            tempPath.pop()
+        }
+        let correctedPath = tempPath.join('-');
+        console.log(correctedPath)
+
+        const newPath = path ? `${correctedPath}-file:${fileName}` : `file:${fileName}`;
         navigate(`/${username}/${newPath}`);
     }
 
-    const sample_dir = {
+    /*const sample_dir = {
         name: 'root',
         owner: username,
         directories: [{id:1,name:'subdir1'},{id:2,name:'subdir2'},{id:3,name:'subdir3'}],
         files: [{id:1,name:'file1'},{id:2,name:'file2'},{id:3,name:'file3'}],
-    }
+    }*/
 
     if(!data || data.status==404){return <div><p>Loading...</p></div>}
 
-    console.log(data)
+    //console.log(data)
 
     return(
         
@@ -201,31 +261,62 @@ function RootPage(props){
                     </div>
                     <hr/>
 
-                    {currentDir.directories.map((directory)=>{
+                    {currentDir.directories.map((directory,index)=>{
                         return(
-                            <div className="flex flex-row" key={directory.id}>
+                            <>
+                            <div className="flex flex-row hover:bg-slate-100" key={index}>
                                 <p className="px-3 material-symbols-outlined">folder</p>
                                 <button onClick={() => navigateToDirectory(directory)} className="w-2/3 text-left px-2">{directory}</button>
                                 <div className="w-1/3 flex flex-row justify-evenly" >
-                                <button className="material-symbols-outlined">more_vert</button>
+                                    <button className="material-symbols-outlined" onClick={()=>{handleOptionsMenuVis(index)}}>more_vert</button>
                                 </div>
-                                
-                            </div>)
+                                { index === optVisIndex && (
+                                <div className="relative">
+                                    <div className="absolute w-32 py-2 bg-white text-center border-2 -right-28 z-10">
+                                        <button onClick={()=>{ handleOptionsMenuVis(); navigateToDirectory(directory)}}> Open</button>
+                                        <hr/>
+                                        <button className='' onClick={()=>openDeleteModal(directory, "directory")}>Delete</button>
+                                        <hr/>
+                                        <button className=''>Rename</button>
+                                    </div>
+                                </div>
+                                )}
+                            </div>
+                            <hr/>
+                            </>
+                            )
+                            
                     })}
                     
-                    {currentDir.files.map((file)=>{
+                    {currentDir.files.map((file, index)=>{
                         return(
-                            <div className="flex flex-row" key={file.id}>
+                            <>
+                            <div className="flex flex-row hover:bg-slate-50" key={index + currentDir.directories.length}>
                                 <p className="px-3 material-symbols-outlined">news</p>
                                 <button onClick={()=>navigateToFile(file)} className="w-2/3 text-left px-2">{file}</button>
                                 <div className="w-1/3 flex flex-row justify-evenly" >
-                                <button className="material-symbols-outlined">more_vert</button>
+                                <button className="material-symbols-outlined"onClick={()=>{handleOptionsMenuVis(index + currentDir.directories.length)}} >more_vert</button>
                                 </div>
-                            </div>)
+                                { index + currentDir.directories.length === optVisIndex && (
+                                <div className="relative">
+                                    <div className="absolute w-32 py-2 bg-white text-center border-2 -right-28 z-10">
+                                        <button onClick={()=>navigateToFile(file)}> Open</button>
+                                        <hr/>
+                                        <button className='' onClick={()=>openDeleteModal(file, "file")}>Delete</button>
+                                        <hr/>
+                                        <button className=''>Rename</button>
+                                    </div>
+                                </div>
+                                )}
+                            </div>
+                            <hr/>
+                            </>
+                            )
                     })}
                     
 
-
+                    {// Forms to add new directory and forms
+                    }
                     <div className={"px-3 " + dirFormVis}>
                         <form className="" onSubmit={handleCreateDirectory}>  
                             <input required className="inline-block border-b w-full focus:outline-none border-black py-1" value={newDirName} type="text" placeholder="new Directory" onChange={(e)=>{setNewDirName(e.target.value)}}/>
@@ -256,15 +347,33 @@ function RootPage(props){
                         <button>X</button>
                     </div>
                     
-                    <TextEditor/>
+                    <TextEditor content={currentFile.content}/>
                 </div> )}
             </div>
 
 
+    {
+        // For Deletion confirmation
+    }
+
+            {isModalVisible && (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <div className="bg-white p-5 shadow-lg">
+            <p>Are you sure you want to delete {itemToDelete.name}?</p>
+            <div className="flex justify-end mt-4">
+                <button className=" border-black border hover:bg-slate-200 px-4 py-2 rounded mr-2" 
+                    onClick={() =>  {setIsModalVisible(false); setOptVisIndex();handleDeletion(itemToDelete.name, itemToDelete.type)}}>
+                    Yes
+                </button>
+                <button className="bg-gray-300 px-4 py-2 rounded" onClick={() => {setIsModalVisible(false); setOptVisIndex()}}>
+                    No
+                </button>
+            </div>
+        </div>
+    </div>
+)}
 
 
-            
-            
         </div>
     )
 }

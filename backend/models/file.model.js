@@ -14,7 +14,7 @@ const Schema = mongoose.Schema;
 
 const fileSchema = new Schema({
   name: { type: String, required: true },
-  content: {type:String},
+  content: [],
   parent: { type: Schema.Types.ObjectId, ref: "Directory",required:true},
   owner: { type: Schema.Types.ObjectId, ref: "User", required: true },
   access:[{ type: Schema.Types.ObjectId, ref: "User"}],

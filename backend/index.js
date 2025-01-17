@@ -43,7 +43,7 @@ app.post('/api/register', async (req,res)=>{
           await rootDirectory.save();
 
 
-        console.log(req.body)
+//        console.log(req.body)
         return res.json({status:"ok", message:"Registration Successful. Please Log In.", color:"text-blue-500"})
     }catch(err){
         console.log(err)
@@ -85,14 +85,17 @@ app.post('/api/:username/:path',async(req,res)=>{
   
     try {
       // Find the user
-      console.log(username)
+//      console.log(username)
       const user = await User.findOne({username: username });
       if (!user){return res.json({status:404,directory:{}, message:"User not Found"})}
 
   
       // Split the path and find the directory
       const pathParts = fullPath.split('-'); 
-      console.log(pathParts)
+ //     console.log(pathParts)
+      if(pathParts[pathParts.length -1].startsWith("file:")){
+        pathParts.pop()
+      }
       let currentDirectory = await Directory.findOne({ name: 'root', owner: user._id });
     
       //don't wanna get the directory if it has been deleted. Add checks for that later.
@@ -102,12 +105,12 @@ app.post('/api/:username/:path',async(req,res)=>{
         if (!currentDirectory) return res.json({ status:404, directory:{},message: 'Directory not found' });
       }
 
-      console.log(currentDirectory.name);
-      console.log(req.body);
+   //   console.log(currentDirectory.name);
+    //  console.log(req.body);
       if(req.body.type=="file"){
         const newFile = new File({
           name:req.body.name,
-          content:" ",
+          content:req.body.content,
           parent:currentDirectory._id,
           owner: user._id
         })
@@ -146,13 +149,71 @@ app.post('/api/:username/:path',async(req,res)=>{
 
 })
 
-app.get('/api/:username/:path*', async (req, res) => {
-    const { username, path } = req.params;
+app.delete('/api/:username/:path',async(req,res)=>{
+
+    const { username,path} = req.params;
     const fullPath = path + (req.params[0] || '');
   
     try {
       // Find the user
-      console.log(username)
+     // console.log(username)
+      const user = await User.findOne({username: username });
+      if (!user){return res.json({status:404,directory:{}, message:"User not Found"})}
+
+  
+      // Split the path and find the directory
+      const pathParts = fullPath.split('-'); 
+      //console.log(pathParts)
+      if(pathParts[pathParts.length-1].startsWith("file:")){
+        pathParts.pop()
+      }
+      let currentDirectory = await Directory.findOne({ name: 'root', owner: user._id });
+    
+      //don't wanna get the directory if it has been deleted. Add checks for that later.
+      for (let i=1;i<pathParts.length;i++) {
+        part = pathParts[i]
+        currentDirectory = await Directory.findOne({ name: part, parent: currentDirectory._id, owner: user._id });
+        if (!currentDirectory) return res.json({ status:404, directory:{},message: 'Directory not found' });
+      }
+
+      if(req.body.type==="file"){
+        const fileToDelete = await File.findOne({name:req.body.name,parent:currentDirectory._id,owner:user._id})
+        fileToDelete.deleted = new Date();
+        currentDirectory.files = currentDirectory.files.filter(file => file != req.body.name);
+        await currentDirectory.save();
+        await fileToDelete.save();
+        //console.log("done!")
+      }
+      else if(req.body.type==="directory"){
+        const dirToDelete = await Directory.findOne({name:req.body.name,parent:currentDirectory._id,owner:user._id})
+        dirToDelete.deleted = new Date();
+        currentDirectory.directories = currentDirectory.directories.filter(directory => directory != req.body.name);
+        await currentDirectory.save();
+        await dirToDelete.save();
+      //  console.log("done")
+      }
+
+      return res.json({status:200, message:"deletion successful"})
+
+    }catch(err){
+
+      console.log(err)
+      return res.json({status:500, message:err.message})
+    }
+
+    
+
+})
+
+app.get('/api/filecontent/:username/:path',async(req,res)=>{
+  //console.log("yay");
+
+  const { username, path } = req.params;
+    const fullPath = path + (req.params[0] || '');
+  
+    try {
+      // Find the user
+      //console.log(username)
       const user = await User.findOne({username: username });
       if (!user){return res.json({status:404,directory:{}, message:"User not Found"})}
 
@@ -160,7 +221,113 @@ app.get('/api/:username/:path*', async (req, res) => {
       // Split the path and find the directory
       const pathParts = fullPath.split('-'); 
       let lastPart = pathParts[pathParts.length - 1];
-      console.log(lastPart)
+      //console.log(lastPart)
+
+      let currentDirectory = await Directory.findOne({ name: 'root', owner: user._id });
+    
+      //don't wanna get the directory if it has been deleted. Add checks for that later.
+      for (let i=1;i<pathParts.length - 1;i++) {
+        part = pathParts[i]
+        currentDirectory = await Directory.findOne({ name: part, parent: currentDirectory._id, owner: user._id });
+        if (!currentDirectory) return res.json({ status:404, directory:{},message: 'Directory not found' });
+      }
+
+        lastPart = lastPart.replace('file:', '');
+        
+        let currentFile = await File.findOne({name:lastPart, parent:currentDirectory._id, owner:user._id});
+        if(!currentFile){return res.json({status:404,directory:{},file:{},message:'File not found'})}
+
+
+       //console.log(currentFile)
+
+
+        //console.log(req.body.content[0].children)
+        console.log("file sent")
+          
+        return res.json({status:200,content:currentFile.content, message:"File sent"});
+
+        
+      
+    }catch(err)
+    {console.log(err)};
+    return res.json({status:500,message:"Failed to send file"});
+    
+
+  
+
+})
+
+
+app.patch('/api/filecontent/:username/:path',async(req,res)=>{
+  //console.log("yay");
+
+  const { username, path } = req.params;
+    const fullPath = path + (req.params[0] || '');
+  
+    try {
+      // Find the user
+      //console.log(username)
+      const user = await User.findOne({username: username });
+      if (!user){return res.json({status:404,directory:{}, message:"User not Found"})}
+
+  
+      // Split the path and find the directory
+      const pathParts = fullPath.split('-'); 
+      let lastPart = pathParts[pathParts.length - 1];
+     // console.log(lastPart)
+
+      let currentDirectory = await Directory.findOne({ name: 'root', owner: user._id });
+    
+      //don't wanna get the directory if it has been deleted. Add checks for that later.
+      for (let i=1;i<pathParts.length - 1;i++) {
+        part = pathParts[i]
+        currentDirectory = await Directory.findOne({ name: part, parent: currentDirectory._id, owner: user._id });
+        if (!currentDirectory) return res.json({ status:404, directory:{},message: 'Directory not found' });
+      }
+
+        lastPart = lastPart.replace('file:', '');
+        
+        let currentFile = await File.findOne({name:lastPart, parent:currentDirectory._id, owner:user._id});
+        if(!currentFile){return res.json({status:404,directory:{},file:{},message:'File not found'})}
+
+       //console.log(currentFile)
+
+        currentFile.content = req.body.content;
+        console.log(currentFile.content[0].children)
+        
+        
+        await currentFile.save()
+
+        //console.log(req.body.content[0].children)
+        console.log("file saved")
+          
+        return res.json({status:200,message:"File saved"});
+
+        
+      
+    }catch(err)
+    {console.log(err)}
+    
+
+  
+
+})
+
+app.get('/api/:username/:path*', async (req, res) => {
+    const { username, path } = req.params;
+    const fullPath = path + (req.params[0] || '');
+  
+    try {
+      // Find the user
+      //console.log(username)
+      const user = await User.findOne({username: username });
+      if (!user){return res.json({status:404,directory:{}, message:"User not Found"})}
+
+  
+      // Split the path and find the directory
+      const pathParts = fullPath.split('-'); 
+      let lastPart = pathParts[pathParts.length - 1];
+      //console.log(lastPart)
 
       let currentDirectory = await Directory.findOne({ name: 'root', owner: user._id });
     
@@ -173,7 +340,7 @@ app.get('/api/:username/:path*', async (req, res) => {
 
       if(pathParts.length>1){
         if(lastPart.startsWith('file:')){
-          console.log("is a file")
+         // console.log("is a file")
           lastPart = lastPart.replace('file:', '');
           let currentFile = await File.findOne({name:lastPart, parent:currentDirectory._id, owner:user._id});
           if(!currentFile){return res.json({status:404,directory:{},file:{},message:'File not found'})}
