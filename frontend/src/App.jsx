@@ -12,6 +12,8 @@ import { decodeToken } from 'react-jwt'
 import ErrorPage from './pages/ErrorPage'
 import RootPage from './pages/RootPage'
 import conns from './components/BackendConn'
+import NotificationsPage from './pages/NotificationsPage'
+import NoAccessPage from './pages/NoAccessPage'
 function App() {
 
   
@@ -56,29 +58,12 @@ function App() {
           <Route path="/register" element={<RegisterPage/>}/>
           <Route path="/login" element = {<LoginPage/>}/>
           
-          <Route path="/:user/:path" element={<RootPage/>} />
+          <Route path="/:user/notifications" element={<NotificationsPage/>}/>
+          <Route path="/noaccess/:path" element = {<NoAccessPage/>}/>
+          <Route path="/:path" element={<RootPage/>} />
 
           <Route path="/" element={<HomePage/>}/>
-          <Route path="/project list" element = {<ProjectList/>}/>
-
-
-          {projectList? (
-            projectList.map(projects=>{
-              return(projects.content.map(project=>{
-                const oldPath = "/" + project.name
-                const path = oldPath.split(' ').join('-');
-                //console.log(path)
-                return(
-                  <Route key={project.id} path={path} element = {<ProjectPage heading={project.name} projectID ={project.id} itemList={project.itemList}/>}/>
-                )
-              }))
-            })
-          ):(<></>)}
-
-
-          <Route path= "/book page" element = {<BookPage/>}/>
-          <Route path="/todo list" element = {<ToDoPage/>}/>
-
+       
         </Routes>
       </Router>
     </div>

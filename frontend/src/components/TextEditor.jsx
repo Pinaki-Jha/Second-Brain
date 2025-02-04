@@ -1,6 +1,7 @@
 // Import React dependencies.
 import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import { Editor, Element, createEditor, Transforms, Text } from 'slate'
+import { useJwt, isExpired, decodeToken } from 'react-jwt'
 import { useParams } from 'react-router'
 import { Slate, Editable, withReact, useSelected, useFocused, } from 'slate-react'
 import {withHistory} from 'slate-history'
@@ -65,9 +66,25 @@ const TextEditor = () => {
   const editor = useMemo(()=>withHistory(withReact(createEditor())),[]);
 
   const [value, setValue] = useState(null)
+  const [username, setUsername] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-  const {user, path} = useParams()
+  const {path} = useParams()
 
+  useEffect(()=>{
+    const token = localStorage.getItem("token");
+    console.log("yay")
+    if(token){
+        console.log("yay2")
+        const user = decodeToken(token)
+        if (!user){
+            localStorage.removeItem("token")
+        }
+        else{
+            setUsername(user.username)
+            console.log(user.username)
+        }
+    }
+},[path])
 
   const renderElement = useCallback(props=>{
     let text = props.element.children[0].text
@@ -184,7 +201,7 @@ const TextEditor = () => {
 
         setValue(null);
         
-        const response = await fetch(conns.ConnPrefix + `/api/filecontent/${user}/${path ||''}`,{
+        const response = await fetch(conns.ConnPrefix + `/api/filecontent/${username}/${path ||''}`,{
           method:"GET",
       });
         const data = await response.json();
@@ -196,7 +213,7 @@ const TextEditor = () => {
     };
 
     handleGetFile();
-  },[path])
+  },[path,username])
 
   
 
@@ -206,7 +223,7 @@ const TextEditor = () => {
       try{
         //console.log(user + path)
         setIsSaving(true);
-        const response = await fetch(conns.ConnPrefix +  `/api/filecontent/${user}/${path || ''}`,{
+        const response = await fetch(conns.ConnPrefix +  `/api/filecontent/${username}/${path || ''}`,{
           method:"PATCH",
           headers:{"Content-Type":"application/json",},
           body:JSON.stringify({

@@ -16,11 +16,20 @@ const directorySchema = new Schema({
   name: { type: String, required: true },
   parent: { type: Schema.Types.ObjectId, ref: "Directory" },
   owner: { type: Schema.Types.ObjectId, ref: "User", required: true },
-  access:[{ type: Schema.Types.ObjectId, ref: "User"}],
-  last_updated: {type:Date},
+  access:[
+    {
+      user:{ type: Schema.Types.ObjectId, ref: "User"},
+      type:{type:String}
+    }
+  ],
+  last_updated:{type:Date},
   deleted: {type:Date},
-  directories: [{type:String}],
-  files: [{type:String}],
+  directories: [{id:{type:Schema.Types.ObjectId, ref:"Directory"}, 
+      name: {type:String}
+    }],
+  files: [{id:{type:Schema.Types.ObjectId, ref:"File"}, 
+    name: {type:String}
+  }],
   //directories: [{ id: {type: Schema.Types.ObjectId, ref: "Directory"},name:{type:String} }],
   //files: [{ id:{type: Schema.Types.ObjectId, ref: "File"},name:{type:String}}],
 },
