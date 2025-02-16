@@ -1,4 +1,6 @@
 const express = require('express');
+const { Server } = require("socket.io");
+const http = require("http")
 const cors = require("cors")
 const mongoose = require("mongoose")
 const jwt = require("jsonwebtoken")
@@ -12,7 +14,64 @@ require("dotenv").config();
 
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server,{
+  cors:{
+    origin: "http://localhost:5173",
+    methods:["GET","POST","PATCH","DELETE"]
+  }
+});
 
+io.on("connection", (socket) => {
+  console.log("A user connected:", socket.id);
+
+  const fileContents = {}; // ✅ Stores latest file contents in-memory (Temporary fix)
+
+// When a user joins a file, send the latest content
+socket.on("joinFile", (fileId) => {
+    socket.join(fileId);
+    console.log(`User ${socket.id} joined file: ${fileId}`);
+
+    if (fileContents[fileId]) {
+        socket.emit("updateFile", fileContents[fileId]); // ✅ Send latest content
+    }
+});
+
+// When a user updates a file, store it and broadcast it
+socket.on("fileUpdate", ({ fileId, content }) => {
+    console.log(`File ${fileId} updated. Broadcasting new content.`);
+    
+    fileContents[fileId] = content; // ✅ Store latest content
+
+    // Send the updated content to all users in the same file (except sender)
+    socket.to(fileId).emit("updateFile", content);
+});
+  socket.on("disconnect", () => {
+      console.log("User disconnected:", socket.id);
+  });
+});
+
+
+/*io.on("connection", (socket) => {
+  console.log("A user connected:", socket.id);
+
+  socket.on("joinFile", (fileId) => {
+      socket.join(fileId);
+      console.log(`User ${socket.id} joined file: ${fileId}`);
+  });
+
+  socket.on("textChange", ({ fileId, operations }) => {
+      console.log(`Changes received for file ${fileId}:`, operations);
+
+      // Broadcast changes to other users in the same file
+      socket.to(fileId).emit("applyChange", operations);
+  });
+
+  socket.on("disconnect", () => {
+      console.log("User disconnected:", socket.id);
+  });
+});
+*/
 //middlewares
 app.use(cors())
 app.use(express.json())
@@ -22,7 +81,7 @@ mongoose.connect(process.env.MONGODB_URI)
 
 //LOGIN AND REGISTRATION
 app.post('/api/check-username', async(req,res)=>{
-  console.log("checking username availability")
+  //console.log("checking username availability")
   try{
     const {username} = req.body;
     const userExists = await User.findOne({ username });
@@ -60,7 +119,7 @@ app.post('/api/register', async (req,res)=>{
 //        console.log(req.body)
         return res.json({status:"ok", message:"Registration Successful. Please Log In.", color:"text-blue-500"})
     }catch(err){
-        console.log(err)
+       // console.log(err)
         return res.json({status:"error", message: "A user with that Email or username already exists", color:"text-red-500"})
     }
     
@@ -85,24 +144,24 @@ app.post('/api/login', async (req, res) =>{
         return res.json({status:"not ok",user:false, message: "Please check your password."})
     }
 }catch(err){
-    console.log(err);
+    //console.log(err);
     return res.json({status:"error", user:false, message:"Unexpected Error. Please Try again."})
 }
 })
 
 // GET CONTENTS OF THE FILE
 app.get('/api/filecontent/:username/:path',async(req,res)=>{
-  console.log("file content requested")
+  //console.log("file content requested")
   const {username, path} = req.params;
   const fullPath = path + (req.params[0] || '');
 
   try {
     // Find the user
-     console.log(username)
+     //console.log(username)
 
     const user = await User.findOne({username: username });
     if (!user){return res.json({status:404,directory:{}, message:"User not Found"})}
-  console.log("user found")
+  //console.log("user found")
     
     const parentDirId = fullPath.split('-file:')[0]
     const fileID = fullPath.split('-file:')[1]
@@ -112,20 +171,20 @@ app.get('/api/filecontent/:username/:path',async(req,res)=>{
 
     if(!currentFile){return res.json({status:404,directory:{},file:{},message:'File not found'})}
 
-    console.log("File found")
+    //console.log("File found")
 
        //console.log(currentFile)
 
 
         //console.log(req.body.content[0].children)
-        console.log("file sent")
+        //console.log("file sent")
           
         return res.json({status:200,content:currentFile.content, message:"File sent"});
 
 
 
   }catch(err){
-    console.log(err);
+    //console.log(err);
     return res.json({status:500,message:"Failed to send file"});
   }
 
@@ -207,18 +266,18 @@ app.patch('/api/filecontent/:username/:path',async(req,res)=>{
        //console.log(currentFile)
 
         currentFile.content = req.body.content;
-        console.log(currentFile.content[0].children)
+        //console.log(currentFile.content[0].children)
         
         
         await currentFile.save()
 
         //console.log(req.body.content[0].children)
-        console.log("file saved")
+        //console.log("file saved")
           
         return res.json({status:200,message:"File saved"});
 
   }catch(err){
-    console.log(err);
+    //console.log(err);
     return res.json({status:500,message:"Failed to send file"});
   }
 
@@ -280,21 +339,188 @@ app.patch('/api/filecontent/:username/:path',async(req,res)=>{
 })
     */
 
+
+//GET ALL NOTIFICATIONS FOR A USER
+app.get('/api/notifications/:username',async(req,res)=>{
+  //console.log("notifs requested")
+  const { username } = req.params;
+  //console.log(username);
+  try{
+    const user = await User.findOne({username:username})
+    if(!user){
+      //console.log("user not found")
+      return res.json({status:404, user:{},notifications:[], message:"User not found"});
+    }
+    //console.log("user found")
+
+    const userNotifs = await Notification.find({recipient:user._id});
+    
+    //console.log( "notifications found and sent")
+    //console.log(userNotifs)
+    return res.json({status:200,notifications:userNotifs, message:"Success"})
+  }catch(err){
+    //console.log(err.message)
+    return res.json({status:500, message:err.message})
+  }
+})
+
+//REQUESTING ACCESS FROM OWNER
+app.post('/api/reqacc/:username/:path', async(req,res)=>{
+  //console.log("sending access request")
+
+  const {username, path} = req.params;
+  const fullPath = path + (req.params[0] || '');
+
+  try{
+
+    //find the user
+    const user = await User.findOne({username:username});
+    if (!user){
+      return res.json({status:404,user:{},root:{},message:"User not found"})
+    }
+    //find the current directory and its owner
+    let fullPathList = fullPath.split('-file:')
+    let currentDirectory = await Directory.findById(fullPathList[0])
+
+    const newNotification = new Notification(
+      {
+        recipient: currentDirectory.owner,
+        sender: {id:user._id, name:user.username},
+        directory:currentDirectory,
+        //file: currentFile,
+        sent_date: Date(),
+        type:"REQACC",
+      }
+    );
+
+    await newNotification.save();
+
+    //console.log("access requested")
+
+    return res.json({status:200})
+  }catch(err){
+    //console.log(err.message)
+    return res.json({status:500, message:err.message})
+  }
+})
+
+//ACCESS GRANTED BY OWNER
+app.patch('/api/reqacc/:username/:path',async(req,res)=>{
+  //username of owner
+  //path is the id of the notification
+  //user id to whom access is to be granted and directory id needed in the header
+  //console.log("granting access")
+  const {username, path} = req.params;
+  try{
+
+    const user = await User.findOne({username:username});
+    const notification = await Notification.findById(path);
+    //console.log("user and notifications found")
+    //console.log(user._id)
+    //console.log(notification.recipient)
+    //console.log(notification.type.toUpperCase())
+    if (user._id.equals(notification.recipient) && notification.type.toUpperCase()=='REQACC'){
+      //console.log("everything ok here")
+      const directory = await Directory.findById(notification.directory);
+      //console.log(directory.owner)
+      //console.log(user._id)
+      if(directory.owner.equals(user._id)){
+        //console.log("alright, getting here")
+      //directory.access.push({user:notification.sender.id,type:'RW'});
+      //await directory.save();
+      await Directory.findByIdAndUpdate(
+        notification.directory,
+        { $addToSet: { access:{user:notification.sender.id,type:"RW" }} },  // `$addToSet` prevents duplicates
+        { new: true } // Return the updated document
+    );
+
+      await Notification.findByIdAndDelete(path);
+      //console.log("access granted")
+      return res.json({status:200, message:"Access Granted"})
+      }
+    }
+    
+    return res.json({status:404, message:"Not Permitted"})
+
+
+  }catch(err){
+    //console.log(err.message);
+    return res.json({status:500, message:err.message})
+  }
+
+
+})
+//NOTIFICATION DELETED
+app.delete('/api/notifications/:username/:path',async(req,res)=>{
+  //username of the owner (receiver of the notification)
+  //path is the id of the notification
+  const { username, path } = req.params;
+  try{
+    const user = await User.findOne({username:username});
+    //console.log(path)
+    const notification = await Notification.findByIdAndDelete(path);
+
+    return res.json({status:200, message:"notification deleted successfully."})
+
+  }catch(err){
+    //console.log("error deleting the notification", err.message)
+    return res.json({status:500, message:err.message})
+
+  }
+  
+})
+  
+
+//FILE OR DIRECTORY ACCESS CHECK - TO REDIRECT FROM NOACCESS PAGE
+app.get('/api/access/:username/:path',async(req,res)=>{
+  const {username, path} = req.params;
+  const fullPath = path + (req.params[0] || '');
+  
+  try {
+    // Find the user
+//      console.log(username)
+    const user = await User.findOne({username: username });
+    if (!user){
+      //console.log("user not found bhai", username)
+      return res.json({status:404,directory:{}, message:"User not Found"})}
+
+      //console.log("user found", user._id);
+      let fullPathList = fullPath.split('-file:')
+      let dirID = fullPathList[0];
+      
+      const currentDirectory = await Directory.findById(dirID);
+
+      const userAccessIDs = currentDirectory.access.map(accessobj=>accessobj.user.toString());
+
+      if(currentDirectory.owner.equals(user._id) || userAccessIDs.includes(user._id.toString())){
+        return res.json({status:200,access:true,message:"user has access to resource"})
+      }
+      return res.json({status:200,access:false,message:"user does not have access to resource"})
+
+
+  }catch(err){
+    //console.log(err.message);
+    res.json({status:500, access:false, message:err.message})
+    }
+
+})
+
+
 app.get('/api/homeinfo/:username', async(req,res)=>{
   const {username} = req.params;
   try{
-    console.log(username)
+    //console.log(username)
     const user = await User.findOne({username:username});
     if (!user){
-      console.log("user not found behen");
+      //console.log("user not found behen");
       return res.json({status:404,user:{},root:{},message:"User not found"})}
-    console.log("user found")
+    //console.log("user found")
 
     const rootDirectory = await Directory.findOne({ name: 'root', owner: user._id });
-    console.log("directory found");
+    //console.log("directory found");
     return res.json({status:200,user:user,root:rootDirectory,message:"Success"})
   }catch(err){
-    console.log(err.message);
+    //console.log(err.message);
     res.json({status:500, user:{}, root:{},message:err.message});
   }
 })
@@ -310,11 +536,11 @@ app.post('/api/:username/:path',async(req,res)=>{
     const user = await User.findOne({username: username });
     if (!user){return res.json({status:404,directory:{}, message:"User not Found"})}
     
-    console.log("user found")
+    //console.log("user found")
 
     const parentDirId = fullPath.split('-file:')[0]
     let currentDirectory = await Directory.findById(parentDirId);
-    console.log("parent directory found")
+    //console.log("parent directory found")
     //console.log(req.body)
     
     if(req.body.type=="file"){
@@ -550,26 +776,28 @@ app.get('/api/:username/:path*', async (req, res) => {
 //      console.log(username)
     const user = await User.findOne({username: username });
     if (!user){
-      console.log("user not found bhai", username)
+      //console.log("user not found bhai", username)
       return res.json({status:404,directory:{}, message:"User not Found"})}
 
-    console.log("user found", user._id);
+    //console.log("user found", user._id);
     let fullPathList = fullPath.split('-file:')
     let lastPart = fullPathList.pop();
     
     if(fullPath.includes('-file:')){
       //file logic here
-      console.log("type is file")
+      //console.log("type is file")
       let currentFile = await File.findById(lastPart);
       let currentDirectory = await Directory.findById(fullPathList[0])
-      console.log("file and directory found")
+      //console.log("file and directory found")
 
       //get owner name 
       let fileOwner = await User.findById(currentDirectory.owner);
       
       //accessibility check
-      let userAccessIDs = currentDirectory.access.map(accessobj=>accessobj.user)
-      if(currentDirectory.owner.equals(user._id) || userAccessIDs.includes(user._id)){
+      let userAccessIDs = currentDirectory.access.map(accessobj=>accessobj.user.toString())
+      //console.log(userAccessIDs)
+      //console.log(user.username)
+      if(currentDirectory.owner.equals(user._id) || userAccessIDs.includes(user._id.toString())){
       if(!currentFile){return res.json({status:404,directory:{},file:{},message:'File not found'})}
       return res.json({status:200,directory:currentDirectory,owner:fileOwner, file:currentFile,type:"file",message:"File sent"});
       }else{
@@ -578,19 +806,21 @@ app.get('/api/:username/:path*', async (req, res) => {
       }
     }else{
       //directory logic here
-      console.log("type is directory:",lastPart)
+      //console.log("type is directory:",lastPart)
       let currentDirectory = await Directory.findById(lastPart);
       if (!currentDirectory){
-        console.log("directory not found")
+        //console.log("directory not found")
         return res.json({ status:404, directory:{},message: 'Directory not found' })};
-      console.log("directory found ", lastPart)
+      //console.log("directory found ", lastPart)
 
       //get owner name 
       let dirOwner = await User.findById(currentDirectory.owner);
       
       //accessibility check
-      let userAccessIDs = currentDirectory.access.map(accessobj=>accessobj.user)
-      if(currentDirectory.owner.equals(user._id) || userAccessIDs.includes(user._id)){
+      let userAccessIDs = currentDirectory.access.map(accessobj=>accessobj.user.toString())
+      //console.log(userAccessIDs)
+      //console.log(user.username)
+      if(currentDirectory.owner.equals(user._id) || userAccessIDs.includes(user._id.toString())){
       return res.json({status:200,directory:currentDirectory,owner:dirOwner, type:"directory",message:"Directory sent"});
       }else{
         return res.json({status:403, directory:{},owner:{}, type:"directory", message:"no access"})
@@ -598,10 +828,11 @@ app.get('/api/:username/:path*', async (req, res) => {
     }
     
   }catch(err){
-    console.log(err.message);
+    //console.log(err.message);
     res.json({status:500, directory:{},message:err.message});
   }
 })
+
 
 /*app.get('/api/:username/:path*', async (req, res) => {
   const { username, path } = req.params;
@@ -665,7 +896,7 @@ app.use('*',  (req, res) => {
 
 
 
-app.listen(process.env.PORT || 3000, ()=>{
+server.listen(process.env.PORT || 3000, ()=>{
     console.log("server started on port 3000")
 })
 

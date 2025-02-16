@@ -1,5 +1,5 @@
 // Import React dependencies.
-import React, { useState, useMemo, useCallback, useEffect } from 'react'
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import { Editor, Element, createEditor, Transforms, Text } from 'slate'
 import { useJwt, isExpired, decodeToken } from 'react-jwt'
 import { useParams } from 'react-router'
@@ -8,6 +8,9 @@ import {withHistory} from 'slate-history'
 import {initialValue, Heading1Element, Heading2Element, Heading3Element, Heading4Element, 
   Heading5Element, Heading6Element, DefaultElement } from './SlateInitialValue'
 import conns from './BackendConn'
+import { io } from "socket.io-client";
+
+const socket = io("http://localhost:3000");
 
 
 
@@ -61,11 +64,11 @@ const Leaf = ({ attributes, children, leaf }) => {
     </span>;
 };
 
-const TextEditor = () => {
+const TextEditor = ({content,fileId}) => {
 
   const editor = useMemo(()=>withHistory(withReact(createEditor())),[]);
 
-  const [value, setValue] = useState(null)
+  const [value, setValue] = useState([])
   const [username, setUsername] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const {path} = useParams()
@@ -85,6 +88,11 @@ const TextEditor = () => {
         }
     }
 },[path])
+
+
+const lastOpsRef = useRef([]); // ✅ Move useRef outside of useEffect
+
+
 
   const renderElement = useCallback(props=>{
     let text = props.element.children[0].text
@@ -215,7 +223,41 @@ const TextEditor = () => {
     handleGetFile();
   },[path,username])
 
-  
+  /*const handleChange = (newValue) => {
+    const operations = editor.operations
+        .filter(op => op.type !== "set_selection") // Ignore cursor movements
+        .map(({ type, path, offset, text, position }) => ({
+            type, path, offset, text, position
+        })); // Extract necessary fields
+    console.log(operations.length)    
+    if (operations.length > 0) {
+        socket.emit("textChange", { fileId, operations });
+    }
+
+    setValue(newValue);
+};*/
+
+useEffect(() => {
+  if (!fileId) return;
+
+  socket.emit("joinFile", fileId);
+
+  socket.on("updateFile", (newContent) => {
+      console.log("Received new file content:", newContent);
+      setValue(newContent); // Update editor content
+  });
+
+  return () => {
+      socket.off("updateFile");
+      socket.disconnect();
+  };
+}, [fileId]);
+
+const handleChange = (newValue) => {
+  setValue(newValue); // Update local state
+  socket.emit("fileUpdate", { fileId, content: newValue }); // Send full file
+};
+
 
   useEffect(()=>{
 
@@ -255,7 +297,7 @@ const TextEditor = () => {
   return (
 
       <div>
-      <Slate editor={editor}  initialValue={value} onChange={ (value) => {setValue(value);}}>
+      <Slate editor={editor}  initialValue={value} onChange={ (value) => {handleChange(value);}}>
         <Editable 
           renderElement={renderElement}
           renderLeaf={renderLeaf}

@@ -14,6 +14,7 @@ function Header(props){
             setUser(theUser)
             if(theUser){
                 setLogoutVisibility("")
+                //console.log(theUser);
             }
             else{
                 setLogoutVisibility("hidden")
@@ -41,7 +42,7 @@ function Header(props){
                 <Link to ="/" className="text-2xl m-2 main-heading inline-block">Second Brain</Link>
             </div> 
             <div className="w-1/2 text-right flex flex-row justify-end gap-4 ">
-                {user && <h1 className="my-auto" onClick={()=>{navigate(`/${user}/notifications`)}}>N</h1>}
+                {user && <h1 className="my-auto" onClick={()=>{navigate(`/notifications/${user.id}`)}}>N</h1>}
                 <h1 className={"inline-block mt-3 hover:underline focus:underline " + logoutVisibility} onClick={logout}> | Logout</h1>
             </div>
             

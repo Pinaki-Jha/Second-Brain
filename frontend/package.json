@@ -9,10 +9,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@editorjs/editorjs": "^2.30.8",
+    "@editorjs/header": "^2.8.8",
+    "@editorjs/inline-code": "^1.5.1",
+    "@editorjs/list": "^2.0.4",
+    "@editorjs/marker": "^1.4.0",
+    "@editorjs/paragraph": "^2.11.7",
     "@emotion/react": "^11.13.3",
     "axios": "^1.7.9",
     "inspirational-quotes": "^2.0.1",
     "jsonwebtoken": "^9.0.2",
+    "lodash": "^4.17.21",
     "nanoid": "^5.0.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -21,7 +28,8 @@
     "react-router-dom": "^6.17.0",
     "slate": "^0.103.0",
     "slate-history": "^0.100.0",
-    "slate-react": "^0.108.0"
+    "slate-react": "^0.108.0",
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.15",

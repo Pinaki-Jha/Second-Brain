@@ -2,7 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-
+body{
+  font-family: 'MontSerrat';
+}
 
 .main-heading{
   font-family: 'MontSerrat';
@@ -66,3 +68,106 @@
   background: #171219; /* Slightly darker yellow for hover effect */
 }
 
+/*--------------------------- TEXT EDITOR STYLES---------------------------------*/
+.ce-header[contenteditable="true"] {
+ 
+}
+
+.ce-header.h1 {
+  font-size: 2.25rem; /* H1 size */
+  background-color: blue;
+}
+
+.ce-header[data-level="2"] {
+  font-size: 1.75rem; /* H2 size */
+}
+
+.ce-header[data-level="3"] {
+  font-size: 1.5rem;
+}
+
+.ce-header[data-level="4"] {
+  font-size: 1.3rem;
+}
+
+.ce-header[data-level="5"] {
+  font-size: 1.15rem;
+}
+
+.ce-header[data-level="6"] {
+  font-size: 1rem; /* Similar to normal text */
+}
+
+/*----------------------CUSTOM HEADER---------------------------*/
+.custom-heading-1 {
+  font-size: 2rem;
+  font-weight: bold;
+  padding: 1rem 0;
+
+}
+
+.custom-heading-2 {
+  font-size: 1.75rem;
+  font-weight: bold;
+  padding: 1rem 0;
+
+}
+.custom-heading-3 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  padding: 1rem 0;
+
+}
+
+.custom-heading-4 {
+  font-size: 1.3rem;
+  font-weight: bold;
+  padding: 1rem 0;
+
+}
+
+.custom-heading-5 {
+  font-size: 1.15rem;
+  font-weight: bold;
+  padding: 1rem 0;
+
+}
+
+.custom-heading-6 {
+  font-size: 1rem;
+  font-weight: bold;
+  padding: 1rem 0;
+
+}
+
+.custom-heading-1:focus {
+  outline-width: 0;
+}
+.custom-heading-2:focus {
+  outline-width: 0;
+}
+.custom-heading-3:focus {
+  outline-width: 0;
+}
+.custom-heading-4:focus {
+  outline-width: 0;
+}
+.custom-heading-5:focus {
+  outline-width: 0;
+}
+.custom-heading-6:focus {
+  outline-width: 0;
+}
+
+.custom-header-button {
+  width:30%;
+  margin: 2px;
+  padding: 2px 3px;
+  border: none;
+  background: #fff;
+  cursor: pointer;
+}
+
+.custom-header-button:hover {
+  background: #ccc;
+}

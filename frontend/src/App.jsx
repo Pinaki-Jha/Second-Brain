@@ -14,6 +14,7 @@ import RootPage from './pages/RootPage'
 import conns from './components/BackendConn'
 import NotificationsPage from './pages/NotificationsPage'
 import NoAccessPage from './pages/NoAccessPage'
+import NewTextEditor from './components/NewTextEditor'
 function App() {
 
   
@@ -57,8 +58,10 @@ function App() {
 
           <Route path="/register" element={<RegisterPage/>}/>
           <Route path="/login" element = {<LoginPage/>}/>
+          <Route path="/notebook" element = {<NewTextEditor/>}/>
+
           
-          <Route path="/:user/notifications" element={<NotificationsPage/>}/>
+          <Route path="/notifications/:user" element={<NotificationsPage/>}/>
           <Route path="/noaccess/:path" element = {<NoAccessPage/>}/>
           <Route path="/:path" element={<RootPage/>} />
 

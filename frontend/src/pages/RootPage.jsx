@@ -8,6 +8,7 @@ import conns from '../components/BackendConn';
 import axios from "axios";
 import {initialValue} from '../components/SlateInitialValue';
 import PopupMenu from '../components/PopupMenu';
+import NewTextEditor from '../components/NewTextEditor';
 
 
 
@@ -129,7 +130,7 @@ function RootPage(props){
             body : JSON.stringify({
                 name: newFileName.trim().toLowerCase(),
                 type:"file",
-                content: initialValue,
+                content: {},
                 parent: currentDir.name,
                 owner: username,
         
@@ -522,7 +523,7 @@ function RootPage(props){
                         </div>
                     </div>
                     <div className='overflow-y-scroll h-5/6'>
-                    <TextEditor content={currentFile.content}/>
+                    <NewTextEditor content={currentFile.content} fileId={currentFile._id}/>
                     </div>
                 </div> )}
             </div>
