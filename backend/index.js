@@ -38,13 +38,15 @@ socket.on("joinFile", (fileId) => {
 });
 
 // When a user updates a file, store it and broadcast it
-socket.on("fileUpdate", ({ fileId, content }) => {
+socket.on("fileUpdate", ({ fileId, diffs }) => {
     console.log(`File ${fileId} updated. Broadcasting new content.`);
     
-    fileContents[fileId] = content; // ✅ Store latest content
+    fileContents[fileId] = diffs; // ✅ Store latest content
+
+    console.log(diffs)
 
     // Send the updated content to all users in the same file (except sender)
-    socket.to(fileId).emit("updateFile", content);
+    socket.to(fileId).emit("updateFile", diffs);
 });
   socket.on("disconnect", () => {
       console.log("User disconnected:", socket.id);

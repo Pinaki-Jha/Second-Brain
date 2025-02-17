@@ -11,6 +11,8 @@ import conns from "./BackendConn";
 import { decodeToken } from "react-jwt";
 import { debounce } from "lodash";
 import { io } from "socket.io-client";
+import * as jsonpatch from "fast-json-patch"; // ✅ Import diffing library
+
 
 
 // ✅ Initialize WebSocket connection
@@ -22,6 +24,9 @@ const NewTextEditor = () => {
     const [username, setUsername] = useState("");
     const { path } = useParams();
     const isUpdatingRef = useRef(false); // ✅ Prevents infinite loop
+
+    const previousStateRef = useRef(null); // ✅ Stores last saved state
+
 
     // ✅ Decode user token
     useEffect(() => {
@@ -49,10 +54,11 @@ const NewTextEditor = () => {
                 
                 if (editorRef.current) {
                     await editorRef.current.isReady;
-                    editorRef.current.render(data.content || { blocks: [] });
+                    editorRef.current.render(data.content[0] || { blocks: [] });
                 }
 
                 setValue(data.content);
+                previousStateRef.current = data.content || { blocks: [] };
                 socket.emit("joinFile", path); // ✅ Join WebSocket room
 
             } catch (err) {
@@ -62,6 +68,9 @@ const NewTextEditor = () => {
 
         handleGetFile();
     }, [path, username]);
+
+
+
 
     // ✅ Initialize Editor.js with WebSocket integration
     useEffect(() => {
@@ -82,15 +91,25 @@ const NewTextEditor = () => {
                     paragraph: Paragraph,
                 },
                 onChange: async () => {
-                    if (isUpdatingRef.current) return; // ✅ Prevent self-triggered updates
+                    if (isUpdatingRef.current) return; // ✅ Prevent infinite loops
+                    
                     const savedData = await editorRef.current.save();
-                    console.log("Local change detected:", savedData);
                     setValue(savedData);
-                    socket.emit("fileUpdate", { fileId: path, content: savedData }); // ✅ Send updates to WebSocket
+    
+                    // ✅ Compute the diff (patch)
+                    if (previousStateRef.current) {
+                        const patch = jsonpatch.compare(previousStateRef.current, savedData);
+                        if (patch.length > 0) {
+                            console.log("Detected changes:", patch);
+                            socket.emit("fileUpdate", { fileId: path, diffs:patch }); // ✅ Send only the changes
+                        }
+                    }
+    
+                    previousStateRef.current = savedData; // ✅ Store current state for next diff comparison
                 }
             });
         }
-
+    
         return () => {
             if (editorRef.current && editorRef.current.destroy) {
                 editorRef.current.destroy();
@@ -101,28 +120,67 @@ const NewTextEditor = () => {
 
     // ✅ Handle incoming WebSocket updates
     useEffect(() => {
-        socket.on("updateFile", (newContent) => {
-            console.log("Received update from WebSocket:", newContent);
-
-            // ✅ Prevent applying already applied changes
-            if (JSON.stringify(newContent) === JSON.stringify(value)) {
-                console.log("Skipping redundant update...");
-                return;
+        socket.on("updateFile", (patch) => {
+            console.log("Received update from WebSocket:", patch);
+    
+            if (!previousStateRef.current || !previousStateRef.current.blocks) {
+                console.warn("Previous state is undefined. Initializing...");
+                previousStateRef.current = value || { time: Date.now(), blocks: [] };
             }
-
-            isUpdatingRef.current = true; // ✅ Prevent triggering `onChange`
-            if (editorRef.current) {
-                editorRef.current.render(newContent);
+            try {
+                // ✅ Apply the patch to previous state
+                const updatedContent = jsonpatch.applyPatch(previousStateRef.current, patch).newDocument;
+    
+                console.log("Updated content after applying patch:", updatedContent);
+    
+                isUpdatingRef.current = true; // ✅ Prevent triggering `onChange`
+                
+                if (editorRef.current) {
+                    editorRef.current.render(updatedContent);
+                }
+    
+                setValue(updatedContent);
+                previousStateRef.current = updatedContent; // ✅ Store latest state
+                isUpdatingRef.current = false;
+    
+            } catch (err) {
+                console.error("Error applying patch:", err);
             }
-            setValue(newContent);
-            isUpdatingRef.current = false;
         });
-
+    
         return () => {
             socket.off("updateFile");
         };
-    }, [value]);
+    }, []);
 
+     useEffect(() => {
+        const handleAutoSave = async () => {
+            console.log('Attempting backend save');
+    
+            if (!value || !username || !path) return;
+    
+            try {
+                await fetch(conns.ConnPrefix + `/api/filecontent/${username}/${path || ''}`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        content: value, // ✅ Sends updated content
+                    }),
+                });
+    
+            } catch (err) {
+                console.error("Error saving file:", err);
+            }
+        };
+    
+        const delayDebounceFn = setTimeout(() => {
+            handleAutoSave();
+        }, 5000); // ✅ Auto-save every 5 seconds
+    
+        return () => clearTimeout(delayDebounceFn);
+    }, [value]);
+     
+    
     return (
         <div>
             <div id="editorjs" className="border w-full"></div>

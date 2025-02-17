@@ -17,6 +17,7 @@
     "@editorjs/paragraph": "^2.11.7",
     "@emotion/react": "^11.13.3",
     "axios": "^1.7.9",
+    "fast-json-patch": "^3.1.1",
     "inspirational-quotes": "^2.0.1",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
