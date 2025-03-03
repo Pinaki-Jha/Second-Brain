@@ -171,3 +171,27 @@ body{
 .custom-header-button:hover {
   background: #ccc;
 }
+
+
+.editorjs img {
+  max-width: 100%;
+  height: auto;
+  resize: both; /* ✅ Enables resizing */
+  overflow: hidden;
+  object-fit: contain;
+}
+
+.resizable-container {
+  position: relative;
+  display: inline-block;
+  resize: horizontal; /* ✅ Enables dragging to resize */
+  overflow: hidden;
+}
+
+.image-tool__image{
+  position: relative;
+  resize: both; /* ✅ Enables dragging to resize */
+  overflow: hidden;
+  display: block;
+  width: 50%;
+}

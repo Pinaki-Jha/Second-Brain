@@ -68,7 +68,7 @@ const TextEditor = ({content,fileId}) => {
 
   const editor = useMemo(()=>withHistory(withReact(createEditor())),[]);
 
-  const [value, setValue] = useState([])
+  const [value, setValue] = useState(initialValue)
   const [username, setUsername] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const {path} = useParams()
@@ -202,7 +202,7 @@ const lastOpsRef = useRef([]); // ✅ Move useRef outside of useEffect
   },[])
 
 
-  useEffect(()=>{
+  /* useEffect(()=>{
 
     const handleGetFile = async() => {
       try{
@@ -222,7 +222,7 @@ const lastOpsRef = useRef([]); // ✅ Move useRef outside of useEffect
 
     handleGetFile();
   },[path,username])
-
+ */
   /*const handleChange = (newValue) => {
     const operations = editor.operations
         .filter(op => op.type !== "set_selection") // Ignore cursor movements
@@ -237,7 +237,7 @@ const lastOpsRef = useRef([]); // ✅ Move useRef outside of useEffect
     setValue(newValue);
 };*/
 
-useEffect(() => {
+/* useEffect(() => {
   if (!fileId) return;
 
   socket.emit("joinFile", fileId);
@@ -252,7 +252,7 @@ useEffect(() => {
       socket.disconnect();
   };
 }, [fileId]);
-
+ */
 const handleChange = (newValue) => {
   setValue(newValue); // Update local state
   socket.emit("fileUpdate", { fileId, content: newValue }); // Send full file

@@ -130,7 +130,7 @@ function RootPage(props){
             body : JSON.stringify({
                 name: newFileName.trim().toLowerCase(),
                 type:"file",
-                content: {},
+                content: [],
                 parent: currentDir.name,
                 owner: username,
         
@@ -356,7 +356,7 @@ function RootPage(props){
         <div>
 
             <div className="flex flex-row py-10 pr-10">
-                <div className=" w-1/5 h-99-screen border-r-2 border-black bg-gray-50 pl-10">
+                <div className="w-1/4 h-99-screen border-r-2 resizable-container border-black bg-gray-50 pl-10">
                 <div>
                 <div className='flex flex-row justify-items-start items-center'>
                     {currentDir.name!="root" && <button className='flex items-center' onClick={()=>{navigate(-1)}}><span className="material-symbols-outlined">arrow_back</span></button>}
@@ -512,9 +512,8 @@ function RootPage(props){
                    
 
                 </div>
-                
                 {currentFile && (
-                <div className="w-4/5 px-10 main-heading text-sm border-0 hover:border-0 focus:border-0 h-99-screen border-gray-50 border-b-2">
+                <div className="w-screen px-10 main-heading text-sm border-0 hover:border-0 focus:border-0 h-99-screen border-gray-50 border-b-2 resizable-container">
                     <div className="pt-1 pb-1 mb-5 flex flex-row justify-between border-b text-xl">
                         <h1 title={currentFile.name} className='truncate text-ellipsis whitespace-nowrap'>{currentFile.name}</h1>
                         <div className='flex flex-row gap-10 justify-center align-middle items-center'>
@@ -522,7 +521,7 @@ function RootPage(props){
                             <button onClick={closeFile}>X</button>
                         </div>
                     </div>
-                    <div className='overflow-y-scroll h-5/6'>
+                    <div className='overflow-y-scroll h-5/6 w-full'>
                     <NewTextEditor content={currentFile.content} fileId={currentFile._id}/>
                     </div>
                 </div> )}

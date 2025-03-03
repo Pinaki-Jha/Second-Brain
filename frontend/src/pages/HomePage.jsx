@@ -1,6 +1,5 @@
 import { Link, useParams } from "react-router-dom"
 import { useNavigate } from "react-router-dom";
-import Quote from "../components/Quote"
 import { useEffect, useState } from 'react'
 import { useJwt, isExpired, decodeToken } from 'react-jwt'
 import favicon from "../assets/favicon.png";
