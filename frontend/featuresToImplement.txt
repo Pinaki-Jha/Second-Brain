@@ -1,0 +1,29 @@
+-----------------------------------------------------------------------------
+[]fix file and directory deletion
+
+
+
+[] Improve real time file syncing - block refresh instead of editor refresh
+[] Text editor include 
+    [] backlinks, 
+    [-] images, 
+    [] videos, 
+    [-] link embeds,
+    [-] youtube embeds
+[] Text editor to include bold, italics, underline, highlight, code
+[] Improve default checklists component - create custom
+[] Chat system?
+[] User profile page - username, password, etc.
+[] Email verification
+[] Email on notifications
+[] File and folder renaming
+[] Resize tab from edge instead of corners
+[] Check email availability and validity
+
+[] Backend MVC Architecture
+[] Shift the entire backend and database to cloud
+
+[] Site Animations
+[] Graph mode like in obsidian but better - clicks allow for navigation, page summary and more
+
+------------------------------------------------------------------------------

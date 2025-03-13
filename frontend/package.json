@@ -2,7 +2,6 @@
   "name": "second_brain",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -10,9 +9,20 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "axios": "^1.7.4",
+    "@editorjs/editorjs": "^2.30.8",
+    "@editorjs/embed": "^2.7.6",
+    "@editorjs/header": "^2.8.8",
+    "@editorjs/image": "^2.10.2",
+    "@editorjs/inline-code": "^1.5.1",
+    "@editorjs/list": "^2.0.4",
+    "@editorjs/marker": "^1.4.0",
+    "@editorjs/paragraph": "^2.11.7",
+    "@emotion/react": "^11.13.3",
+    "axios": "^1.7.9",
+    "fast-json-patch": "^3.1.1",
     "inspirational-quotes": "^2.0.1",
     "jsonwebtoken": "^9.0.2",
+    "lodash": "^4.17.21",
     "nanoid": "^5.0.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -20,19 +30,21 @@
     "react-router": "^6.17.0",
     "react-router-dom": "^6.17.0",
     "slate": "^0.103.0",
-    "slate-react": "^0.108.0"
+    "slate-history": "^0.100.0",
+    "slate-react": "^0.108.0",
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@vitejs/plugin-react-swc": "^3.3.2",
-    "autoprefixer": "^10.4.16",
+    "autoprefixer": "^10.4.20",
     "eslint": "^8.45.0",
     "eslint-plugin-react": "^7.32.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.3",
-    "postcss": "^8.4.31",
-    "tailwindcss": "^3.3.5",
+    "postcss": "^8.4.41",
+    "tailwindcss": "^2.2.19",
     "vite": "^4.4.5"
   }
 }
