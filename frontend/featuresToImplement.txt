@@ -1,6 +1,15 @@
 -----------------------------------------------------------------------------
+[]fix file and directory deletion
+
+
+
 [] Improve real time file syncing - block refresh instead of editor refresh
-[] Text editor include backlinks, images, videos, link embeds, youtube embeds
+[] Text editor include 
+    [] backlinks, 
+    [-] images, 
+    [] videos, 
+    [-] link embeds,
+    [-] youtube embeds
 [] Text editor to include bold, italics, underline, highlight, code
 [] Improve default checklists component - create custom
 [] Chat system?
@@ -11,6 +20,7 @@
 [] Resize tab from edge instead of corners
 [] Check email availability and validity
 
+[] Backend MVC Architecture
 [] Shift the entire backend and database to cloud
 
 [] Site Animations

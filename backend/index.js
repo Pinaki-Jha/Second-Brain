@@ -141,7 +141,33 @@ app.post('/api/login', async (req, res) =>{
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-app.post("/api/upload-image", upload.single("image"), async (req, res) => {
+app.post("/api/upload-image", upload.single("image"), async(req,res)=>{
+  try {
+    if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    // ✅ Compress and convert image to Base64
+    const compressedBuffer = await sharp(req.file.buffer)
+        .resize({ width: 800 }) // Resize to max width 800px
+        .jpeg({ quality: 80 }) // Compress to 80% quality
+        .toBuffer();
+
+    const base64Image = `data:image/jpeg;base64,${compressedBuffer.toString("base64")}`;
+
+    // ✅ Return Base64-encoded image directly
+    res.json({
+        success: 1,
+        file: { url: base64Image }
+    });
+
+} catch (err) {
+    console.error("Image upload error:", err);
+    res.status(500).json({ error: "Server error" });
+}
+
+})
+/*app.post("/api/upload-image", upload.single("image"), async (req, res) => {
   console.log("trying to upload file");
   try {
       if (!req.file) {
@@ -171,7 +197,7 @@ app.post("/api/upload-image", upload.single("image"), async (req, res) => {
       console.error("Image upload error:", err);
       res.status(500).json({ error: "Server error" });
   }
-});
+});*/
 
 app.delete("/api/delete-image", async (req, res) => {
   try {
