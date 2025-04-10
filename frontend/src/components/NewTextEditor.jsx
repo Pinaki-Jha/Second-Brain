@@ -115,7 +115,7 @@ const NewTextEditor = () => {
                         class: ImageTool,
                         config: {
                             endpoints: {
-                                byFile: "http://localhost:3000/api/upload-image", // ✅ Now returns Base64 instead of URL
+                                byFile: "http://localhost:3000/api/filecontent/upload-image", // ✅ Now returns Base64 instead of URL
                             },
                             field: "image",
                             additionalRequestHeaders: {

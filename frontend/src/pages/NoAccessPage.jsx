@@ -49,7 +49,7 @@ function NoAccessPage(){
     const sendAccessRequest = async() =>{
 
         try{
-            const response = await fetch(conns.ConnPrefix + `/api/reqacc/${username}/${path || ''}`,{
+            const response = await fetch(conns.ConnPrefix + `/api/access/reqacc/${username}/${path || ''}`,{
                 method:"POST",
                 headers:{},
                 body:{}

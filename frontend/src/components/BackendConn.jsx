@@ -1,8 +1,8 @@
 const ConnPrefix = "http://localhost:3000"
 
-const LoginConn = ConnPrefix + "/api/login"
-const RegisterConn = ConnPrefix + "/api/register"
-const CheckUsernameConn = ConnPrefix + '/api/check-username'
+const LoginConn = ConnPrefix + "/api/auth/login"
+const RegisterConn = ConnPrefix + "/api/auth/register"
+const CheckUsernameConn = ConnPrefix + '/api/auth/check-username'
 
 const ProjectListConn = ConnPrefix + "/api/getprojectlist"
 
