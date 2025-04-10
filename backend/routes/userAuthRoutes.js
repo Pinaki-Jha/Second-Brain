@@ -1,85 +1,15 @@
 const express = require('express')
-const jwt = require("jsonwebtoken")
-const bcrypt = require("bcryptjs")
-
-
+const userAuthController = require('../controllers/userAuthController')
 
 const router = express.Router();
 
 
-const User = require("../models/user.model")
-
-
-
-router.post('/check-username', async(req,res)=>{
-    //console.log("checking username availability")
-    try{
-      const {username} = req.body;
-      const userExists = await User.findOne({ username });
+router.post('/check-username', userAuthController.check_username_post)
   
-      res.json({ available: !userExists });
-    } catch (error) {
-      console.error("Error checking username availability:", error);
-      res.status(500).json({ message: "Error checking username availability" });
-    }
-    
-  })
-  
-router.post('/register', async (req,res)=>{
-      try{        
-          const newPassword = await bcrypt.hash(req.body.password,10)
-          await User.create({
-              username : req.body.username,
-              email : req.body.email,
-              password : newPassword,
-          })
-           
-  
-          const user = await User.findOne({email: req.body.email})
-          
-          const rootDirectory = new Directory({
-              name: 'root',
-              owner: user._id,
-              directories: [],
-              files: [],
-            });
-        
-            await rootDirectory.save();
+router.post('/register', userAuthController.register_post)
   
   
-  //        console.log(req.body)
-          return res.json({status:"ok", message:"Registration Successful. Please Log In.", color:"text-blue-500"})
-      }catch(err){
-         // console.log(err)
-          return res.json({status:"error", message: "A user with that Email or username already exists", color:"text-red-500"})
-      }
-      
-  })
-  
-  
-router.post('/login', async (req, res) =>{
-      try{
-      const user = await User.findOne({email: req.body.email})
-      if(!user){return res.json({status:"not ok",user:false,message:"No user with that email registered"})}
-      const isPassValid = await bcrypt.compare(req.body.password, user.password)
-
-      if(isPassValid){
-          const token = jwt.sign({
-              id: user._id,
-              username : user.username,
-              email : user.email,
-          }, "secret123", {expiresIn:'1d'})
-  
-          return res.json({status:"ok", user:token, message:"login successful"})
-      }
-      else{
-          return res.json({status:"not ok",user:false, message: "Please check your password."})
-      }
-  }catch(err){
-      //console.log(err);
-      return res.json({status:"error", user:false, message:"Unexpected Error. Please Try again."})
-  }
-  })
+router.post('/login',userAuthController.login_post )
  
   
 module.exports = router;
