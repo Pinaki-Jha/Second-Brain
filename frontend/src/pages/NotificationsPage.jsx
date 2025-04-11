@@ -34,7 +34,7 @@ function NotificationsPage(){
     const grantAccess = async(notif_id)=>{
         console.log("granting access...")
         try{
-            const response = await fetch(conns.ConnPrefix + `/api/reqacc/${username}/${notif_id}`,{
+            const response = await fetch(conns.ConnPrefix + `/api/access/reqacc/${username}/${notif_id}`,{
                 method:'PATCH'
             })
 

@@ -41,7 +41,7 @@ function HomePage(props) {
         if(username){
         const fetchUser = async()=>{
             try{
-                const response = await fetch(conns.ConnPrefix + `/api/homeinfo/${username}`);
+                const response = await fetch(conns.ConnPrefix + `/api/home/homeinfo/${username}`);
                 if (!response.ok) throw new Error("User not found");
                 const data = await response.json();
                 setUser(data.user); 

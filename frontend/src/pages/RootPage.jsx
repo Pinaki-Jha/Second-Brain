@@ -69,7 +69,7 @@ function RootPage(props){
         try {
             console.log("user:", username);
             console.log("path:", path);
-            const response = await fetch(conns.ConnPrefix + `/api/${username}/${path || ''}`,{
+            const response = await fetch(conns.ConnPrefix + `/api/dirfile/${username}/${path || ''}`,{
             method:"GET"
           });
           const tempdata = await response.json();
@@ -122,7 +122,7 @@ function RootPage(props){
             }
         }
 
-        const response = await fetch(conns.ConnPrefix + `/api/${username}/${path || ''}`,{
+        const response = await fetch(conns.ConnPrefix + `/api/dirfile/${username}/${path || ''}`,{
             method:"POST",
             headers: {
                 'Content-Type':'application/json',
@@ -162,7 +162,7 @@ function RootPage(props){
             }
         }
 
-        const response = await fetch(conns.ConnPrefix + `/api/${username}/${path || ''}`,{
+        const response = await fetch(conns.ConnPrefix + `/api/dirfile/${username}/${path || ''}`,{
             method:"POST",
             headers: {
                 'Content-Type':'application/json',
@@ -235,7 +235,7 @@ function RootPage(props){
     const handleDeletion = async (name, type) =>{
         
 
-        const response = await fetch(conns.ConnPrefix + `/api/${username}/${path || ''}`,{
+        const response = await fetch(conns.ConnPrefix + `/api/dirfile/${username}/${path || ''}`,{
             method:"DELETE",
             headers: {
                 'Content-Type':'application/json',
